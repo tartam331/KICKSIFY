@@ -98,3 +98,35 @@ fetch('http://localhost:3000/api/cipok')
         }
         console.log('Connected to MySQL database');
     });
+
+
+    document.addEventListener("DOMContentLoaded", function () {
+        fetch("http://localhost:5000/nike-dunks")
+            .then(response => response.json())
+            .then(data => {
+                const shoeContainer = document.querySelector(".shoe-container");
+                let row;
+    
+                data.forEach((shoe, index) => {
+                    if (index % 3 === 0) {
+                        row = document.createElement("div");
+                        row.classList.add("shoe-row");
+                        shoeContainer.appendChild(row);
+                    }
+    
+                    const shoeCard = document.createElement("div");
+                    shoeCard.classList.add("shoe-card");
+    
+                    shoeCard.innerHTML = `
+                        <img src="${shoe.image_url}" alt="${shoe.model}">
+                        <h2>${shoe.model}</h2>
+                        <p>Ár: ${shoe.price} Ft</p>
+                        <p>Méret: ${shoe.size}</p>
+                    `;
+    
+                    row.appendChild(shoeCard);
+                });
+            })
+            .catch(error => console.error("Hiba történt az adatok betöltésekor:", error));
+    });
+    
