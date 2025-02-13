@@ -1,0 +1,78 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+.navbar {
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+.navbar .navbar-brand {
+    font-size: 1.5rem;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.navbar .menu-toggle {
+    font-size: 1.5rem;
+    color: white;
+    border: none;
+    background: none;
+}
+.navbar .navbar-icons {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.navbar .navbar-icons i {
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+.navbar .dropdown .dropdown-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1rem;
+}
+.navbar .dropdown-menu {
+    background-color: #333;
+}
+.navbar .dropdown-menu .dropdown-item {
+    color: white;
+}
+.navbar .dropdown-menu .dropdown-item:hover {
+    background-color: #555;
+}
+.hero-section {
+    position: relative;
+    height: 100vh;
+    background: url('images/hatter.png') no-repeat center center/cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.hero-content {
+    color: white;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    position: absolute;
+    bottom: 100px; /* Közvetlenül a footer felett */
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+.hero-title {
+    font-size: 3rem;
+    margin-bottom: 20px;
+}
+.footer {
+    background-color: #333;
+    color: white;
+}
