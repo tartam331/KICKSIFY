@@ -130,3 +130,6 @@ fetch('http://localhost:3000/api/cipok')
             .catch(error => console.error("Hiba történt az adatok betöltésekor:", error));
     });
     
+
+
+    
