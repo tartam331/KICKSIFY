@@ -24,7 +24,7 @@ db.connect((err) => {
     console.log("✅ Connected to MySQL Database");
 });
 
-// API végpont: Cipők lekérése
+// API végpont: Cipők lekérése (pl. /api/cipok?marka=Nike)
 app.get("/api/cipok", (req, res) => {
     let query = "SELECT * FROM cipok";
     if (req.query.marka) {
@@ -39,8 +39,31 @@ app.get("/api/cipok", (req, res) => {
     });
 });
 
+// API végpont: Egy adott cipő lekérése (pl. /api/cipok/37)
+app.get("/api/cipok/:id", (req, res) => {
+    const cipoId = req.params.id;
+    const query = "SELECT * FROM cipok WHERE cipo_id = ?";
+    db.query(query, [cipoId], (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: "Adatbázis hiba" });
+        }
+        if (results.length === 0) {
+            return res.status(404).json({ error: "Nincs ilyen termék" });
+        }
+        // Visszaküldjük az első találatot
+        res.json(results[0]);
+    });
+});
+
 // Statikus fájlok kiszolgálása a frontendhez
 app.use(express.static(path.join(__dirname, "../kicksify_frontend")));
+
+// Külön route a product.html számára,
+// így ha a felhasználó közvetlenül a product.html-re navigál,
+// azt nem írja felül a wildcard route.
+app.get("/product.html", (req, res) => {
+    res.sendFile(path.join(__dirname, "../kicksify_frontend/product.html"));
+});
 
 // Minden egyéb GET kérésnél az index.html-t küldjük vissza
 app.get("*", (req, res) => {

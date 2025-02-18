@@ -3,15 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Kicksify - Nike Cipők</title>
+  <title>Kicksify - Termék</title>
   <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"/>
-  <!-- Esetleges style.css -->
-  <link rel="stylesheet" href="style.css"/>
   <style>
-    /* Alap design (ne módosítsd) */
     body {
       margin: 0; padding: 0; font-family: Arial, sans-serif;
     }
@@ -28,35 +25,31 @@
     .navbar .menu-toggle {
       font-size: 1.5rem; color: white; background: none; border: none;
     }
-    .navbar .navbar-icons { display: flex; align-items: center; gap: 15px; color: white; }
+    .navbar .navbar-icons {
+      display: flex; align-items: center; gap: 15px; color: white;
+    }
     .navbar .navbar-icons i { cursor: pointer; }
     main.container { padding-top: 80px; }
     footer {
       background-color: #333; color: white; padding: 10px 0; text-align: center; margin-top: 50px;
     }
 
-    /* DUNK | rész, szűrők, rendezés */
-    .dunk-section { margin-bottom: 40px; }
-    .dunk-title {
-      font-size: 2rem; font-weight: bold; margin-bottom: 1rem;
+    /* Termékoldal layout */
+    .product-page .product-brand {
+      text-transform: uppercase; color: #aaa; margin-bottom: 0;
     }
-    .filter-row { font-weight: 500; }
-    .filter-row .filters span, .filter-row .sort span { cursor: pointer; }
-
-    /* Cipők border nélküli kártyák: */
-    .shoe-item {
-      text-align: center;
-      margin-bottom: 30px;
-      cursor: pointer; /* kattintható */
+    .product-page .product-name {
+      text-transform: uppercase; font-weight: bold; font-size: 1.4rem; margin: 5px 0;
     }
-    .shoe-item img {
-      max-width: 100%; height: auto; margin-bottom: 10px;
+    .product-page .product-price {
+      font-weight: bold; font-size: 1.2rem; margin-bottom: 20px;
     }
-    .shoe-name { font-weight: 500; margin-bottom: 5px; }
-    .shoe-price { color: #666; font-size: 1rem; }
-
-    /* Kikapcsoljuk a default card-border stílusokat, ha használnánk card osztályt: */
-    .card { border: none; }
+    .size-option {
+      display: inline-block;
+      padding: 6px 10px; border: 1px solid #ccc; margin: 2px;
+      cursor: pointer; border-radius: 4px; font-size: 0.9rem;
+    }
+    .size-option:hover { background-color: #f5f5f5; }
   </style>
 </head>
 <body>
@@ -91,37 +84,42 @@
     </div>
   </header>
 
-  <!-- Fő tartalom -->
-  <main class="container my-5">
-    <!-- "DUNK |" és a szűrés/rendezés -->
-    <section class="dunk-section text-center">
-      <h2 class="dunk-title">DUNK |</h2>
-      <div class="d-flex justify-content-between align-items-center px-3 py-2 filter-row">
-        <div class="filters d-flex gap-4">
-          <span>Márka</span>
-          <span>Ár</span>
-          <span>Méret</span>
-        </div>
-        <div class="sort d-flex gap-2">
-          <span>Rendezés:</span>
-          <span class="fw-bold">Kiemelt termékek</span>
-        </div>
+  <!-- Fő tartalom: Termékoldal -->
+  <main class="container product-page">
+    <div class="row">
+      <!-- Bal oldalt a nagy kép -->
+      <div class="col-md-6 text-center">
+        <img id="product-image" src="" alt="" class="img-fluid" />
       </div>
-    </section>
+      <!-- Jobb oldalt az adatok -->
+      <div class="col-md-6">
+        <p class="product-brand" id="product-brand"></p>
+        <h2 class="product-name" id="product-name"></h2>
+        <p class="product-price" id="product-price"></p>
 
-    <!-- Cipők listája -->
-    <div id="shoe-container" class="row">
-      <!-- Ide töltjük be (nike.js) -->
+        <!-- Példa fix méretek – valós esetben dinamikus is lehet -->
+        <div class="mb-3">
+          <p style="font-weight: bold;">Méret:</p>
+          <div id="size-options" class="d-flex flex-wrap">
+            <!-- Ide generáljuk a méretek gombjait product.js-ben, vagy fixen is beírhatod -->
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="quantity" class="form-label">Mennyiség:</label>
+          <input type="number" id="quantity" class="form-control" value="1" min="1" style="width: 100px;" />
+        </div>
+
+        <button class="btn btn-primary" id="addToCartBtn">Kosárba</button>
+      </div>
     </div>
   </main>
 
-  <!-- Lábléc -->
   <footer>
     &copy; 2025 Kicksify. All rights reserved.
   </footer>
 
-  <!-- Saját JavaScript -->
-  <script src="nike.js"></script>
+  <script src="product.js"></script>
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
