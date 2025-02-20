@@ -27,7 +27,7 @@ db.connect(err => {
 });
 
 // 📂 Cipők képeinek kiszolgálása
-app.use("/cipok", express.static(path.join(__dirname, "../kicksify_frontend/cipok")));
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 // 📌 API: Összes cipő lekérése az adatbázisból
 app.get("/api/cipok", (req, res) => {
@@ -45,7 +45,7 @@ app.get("/api/cipok", (req, res) => {
         // Képek URL-jének hozzáadása
         const updatedResults = results.map(cipo => ({
             ...cipo,
-            image: `http://localhost:${PORT}/cipok/${cipo.kep}`
+            image: `http://localhost:${PORT}/images/${cipo.kep}`
         }));
 
         res.json(updatedResults);
@@ -68,27 +68,47 @@ app.get("/api/cipok/:id", (req, res) => {
 
         const cipo = {
             ...results[0],
-            image: `http://localhost:${PORT}/cipok/${results[0].kep}`
+            image: `http://localhost:${PORT}/images/${results[0].kep}`
         };
 
         res.json(cipo);
     });
 });
 
-// 📌 API: Elérhető méretek és készlet lekérése egy cipőhöz (🔥 Frissített verzió)
+// 📌 API: Elérhető méretek és készlet lekérése egy cipőhöz
 app.get("/api/cipok/:id/meretek", (req, res) => {
     const cipoId = req.params.id;
-    const query = "SELECT meret, keszlet FROM meretek WHERE cipo_id = ? ORDER BY meret ASC";
 
-    db.query(query, [cipoId], (err, results) => {
+    // Ellenőrzés: férfi vagy női cipő?
+    const checkGenderQuery = `
+        SELECT COUNT(*) AS ferfi FROM ferfi_meretek WHERE cipo_id = ?
+        UNION ALL
+        SELECT COUNT(*) AS noi FROM noi_meretek WHERE cipo_id = ?
+    `;
+
+    db.query(checkGenderQuery, [cipoId, cipoId], (err, results) => {
         if (err) {
             console.error("❌ Méretlekérdezési hiba:", err);
             return res.status(500).json({ error: "Hiba az adatbázis lekérdezésekor" });
         }
-        if (results.length === 0) {
+
+        let tableName;
+        if (results[0].ferfi > 0) {
+            tableName = "ferfi_meretek";
+        } else if (results[1].noi > 0) {
+            tableName = "noi_meretek";
+        } else {
             return res.status(404).json({ error: "Ehhez a cipőhöz nincs elérhető méret." });
         }
-        res.json(results);
+
+        const query = `SELECT meret, keszlet FROM ${tableName} WHERE cipo_id = ? ORDER BY meret ASC`;
+        db.query(query, [cipoId], (err, meretResults) => {
+            if (err) {
+                console.error("❌ Méretlekérdezési hiba:", err);
+                return res.status(500).json({ error: "Hiba az adatbázis lekérdezésekor" });
+            }
+            res.json(meretResults);
+        });
     });
 });
 

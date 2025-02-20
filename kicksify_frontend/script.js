@@ -106,3 +106,8 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => console.error("❌ Hiba történt az adatok betöltésekor:", error));
 });
+
+const cipo = {
+    ...results[0],
+    image: `http://localhost:5000/cipok/${results[0].kep}`
+};

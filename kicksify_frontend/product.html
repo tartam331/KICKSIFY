@@ -9,55 +9,24 @@
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"/>
   <style>
-    body {
-      margin: 0; padding: 0; font-family: Arial, sans-serif;
-    }
-    .navbar {
-      background-color: rgba(0, 0, 0, 0.8);
-      padding: 10px 20px;
-      display: flex; align-items: center; justify-content: space-between;
-      position: fixed; top: 0; width: 100%; z-index: 1000;
-    }
-    .navbar .navbar-brand {
-      font-size: 1.5rem; color: white; font-weight: bold; text-transform: uppercase;
-      position: absolute; left: 50%; transform: translateX(-50%); margin: 0; text-decoration: none;
-    }
-    .navbar .menu-toggle {
-      font-size: 1.5rem; color: white; background: none; border: none;
-    }
-    .navbar .navbar-icons {
-      display: flex; align-items: center; gap: 15px; color: white;
-    }
+    body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    .navbar { background-color: rgba(0, 0, 0, 0.8); padding: 10px 20px; position: fixed; top: 0; width: 100%; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
+    .navbar .navbar-brand { font-size: 1.5rem; color: white; font-weight: bold; text-transform: uppercase; text-decoration: none; }
+    .navbar .navbar-icons { display: flex; align-items: center; gap: 15px; color: white; }
     .navbar .navbar-icons i { cursor: pointer; }
     main.container { padding-top: 80px; }
-    footer {
-      background-color: #333; color: white; padding: 10px 0; text-align: center; margin-top: 50px;
-    }
-
-    /* Termékoldal layout */
-    .product-page .product-brand {
-      text-transform: uppercase; color: #aaa; margin-bottom: 0;
-    }
-    .product-page .product-name {
-      text-transform: uppercase; font-weight: bold; font-size: 1.4rem; margin: 5px 0;
-    }
-    .product-page .product-price {
-      font-weight: bold; font-size: 1.2rem; margin-bottom: 20px;
-    }
-    .size-option {
-      display: inline-block;
-      padding: 6px 10px; border: 1px solid #ccc; margin: 2px;
-      cursor: pointer; border-radius: 4px; font-size: 0.9rem;
-    }
+    footer { background-color: #333; color: white; padding: 10px 0; text-align: center; margin-top: 50px; }
+    .product-page .product-brand { text-transform: uppercase; color: #aaa; margin-bottom: 0; }
+    .product-page .product-name { text-transform: uppercase; font-weight: bold; font-size: 1.4rem; margin: 5px 0; }
+    .product-page .product-price { font-weight: bold; font-size: 1.2rem; margin-bottom: 20px; }
+    .size-option { display: inline-block; padding: 6px 10px; border: 1px solid #ccc; margin: 2px; cursor: pointer; border-radius: 4px; font-size: 0.9rem; }
     .size-option:hover { background-color: #f5f5f5; }
+    .active { background-color: #007bff; color: white; }
   </style>
 </head>
 <body>
   <!-- Fejléc -->
   <header class="navbar">
-    <button class="menu-toggle">
-      <i class="fas fa-bars"></i>
-    </button>
     <a class="navbar-brand" href="cipok.html">Cipők</a>
     <div class="navbar-icons">
       <i class="fas fa-search"></i>
@@ -71,7 +40,7 @@
     <div class="row">
       <!-- Bal oldalt a nagy kép -->
       <div class="col-md-6 text-center">
-        <img id="product-image" src="" alt="Termék képe" class="img-fluid" />
+        <img id="product-image" src="no-image.png" alt="Termék képe" class="img-fluid" />
       </div>
       <!-- Jobb oldalt az adatok -->
       <div class="col-md-6">
@@ -82,9 +51,7 @@
         <!-- Méretválasztás -->
         <div class="mb-3">
           <p style="font-weight: bold;">Méret:</p>
-          <div id="size-options" class="d-flex flex-wrap">
-            <p>Nincsenek elérhető méretek.</p> <!-- Ha nincs adat -->
-          </div>
+          <div id="size-options" class="d-flex flex-wrap"></div>
         </div>
 
         <div class="mb-3">
@@ -102,7 +69,7 @@
   </footer>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", async function () {
       const urlParams = new URLSearchParams(window.location.search);
       const cipoId = urlParams.get("id");
 
@@ -111,45 +78,55 @@
         return;
       }
 
-      // 📌 Cipő adatok betöltése az API-ból
-      fetch(`/api/cipok/${cipoId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.error) {
-            console.error("Hiba:", data.error);
-            return;
-          }
-          document.getElementById("product-image").src = data.image || "no-image.png";
-          document.getElementById("product-brand").textContent = data.marka;
-          document.getElementById("product-name").textContent = data.modell;
-          document.getElementById("product-price").textContent = `${Number(data.ar).toLocaleString("hu-HU")} Ft`;
-        })
-        .catch(err => console.error("Hiba a termék betöltésekor:", err));
+      try {
+        // 📌 Cipő adatok betöltése
+        const resCipo = await fetch(`/api/cipok/${cipoId}`);
+        const dataCipo = await resCipo.json();
 
-      // 📌 Cipő méretek betöltése
-      fetch(`/api/cipok/${cipoId}/meretek`)
-        .then(res => res.json())
-        .then(data => {
-          const sizeContainer = document.getElementById("size-options");
-          sizeContainer.innerHTML = ""; // Törli az alapértelmezett szöveget
+        if (dataCipo.error) {
+          console.error("Hiba:", dataCipo.error);
+          return;
+        }
 
-          if (data.length === 0) {
-            sizeContainer.innerHTML = "<p>Nincs elérhető méret.</p>";
-            return;
-          }
+        // 🔥 Kép elérési útvonal beállítása
+        const productImage = document.getElementById("product-image");
+        productImage.src = `http://localhost:5000/cipok/${dataCipo.kep}` || "no-image.png";
 
-          data.forEach(size => {
-            const sizeBtn = document.createElement("button");
-            sizeBtn.className = "size-option btn btn-outline-secondary";
-            sizeBtn.textContent = size.meret;
-            sizeBtn.onclick = () => {
-              document.querySelectorAll(".size-option").forEach(btn => btn.classList.remove("active"));
-              sizeBtn.classList.add("active");
-            };
-            sizeContainer.appendChild(sizeBtn);
-          });
-        })
-        .catch(err => console.error("Hiba a méretek betöltésekor:", err));
+        // Ha a kép nem elérhető, fallback alapértelmezett képre
+        productImage.onerror = () => {
+          productImage.src = "no-image.png";
+        };
+
+        document.getElementById("product-brand").textContent = dataCipo.marka;
+        document.getElementById("product-name").textContent = dataCipo.modell;
+        document.getElementById("product-price").textContent = `${Number(dataCipo.ar).toLocaleString("hu-HU")} Ft`;
+
+        // 📌 Cipő méretek betöltése
+        const resMeretek = await fetch(`/api/cipok/${cipoId}/meretek`);
+        const dataMeretek = await resMeretek.json();
+
+        const sizeContainer = document.getElementById("size-options");
+        sizeContainer.innerHTML = ""; // Törli az alapértelmezett szöveget
+
+        if (dataMeretek.length === 0) {
+          sizeContainer.innerHTML = "<p>Nincs elérhető méret.</p>";
+          return;
+        }
+
+        dataMeretek.forEach(size => {
+          const sizeBtn = document.createElement("button");
+          sizeBtn.className = "size-option btn btn-outline-secondary";
+          sizeBtn.textContent = size.meret;
+          sizeBtn.onclick = () => {
+            document.querySelectorAll(".size-option").forEach(btn => btn.classList.remove("active"));
+            sizeBtn.classList.add("active");
+          };
+          sizeContainer.appendChild(sizeBtn);
+        });
+
+      } catch (err) {
+        console.error("Hiba a termék/méretek betöltésekor:", err);
+      }
     });
   </script>
 
