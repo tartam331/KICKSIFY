@@ -60,24 +60,6 @@
     </button>
     <a class="navbar-brand" href="cipok.html">Cipők</a>
     <div class="navbar-icons">
-      <div class="dropdown">
-        <button class="btn btn-light dropdown-toggle" type="button" id="currencyDropdown" data-bs-toggle="dropdown">
-          HUF Ft
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="currencyDropdown">
-          <li><a class="dropdown-item" href="#">USD $</a></li>
-          <li><a class="dropdown-item" href="#">EUR €</a></li>
-        </ul>
-      </div>
-      <div class="dropdown">
-        <button class="btn btn-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown">
-          Magyar
-        </button>
-        <ul class="dropdown-menu" aria-labelledby="languageDropdown">
-          <li><a class="dropdown-item" href="#">English</a></li>
-          <li><a class="dropdown-item" href="#">Deutsch</a></li>
-        </ul>
-      </div>
       <i class="fas fa-search"></i>
       <i class="fas fa-user"></i>
       <i class="fas fa-shopping-cart"></i>
@@ -89,7 +71,7 @@
     <div class="row">
       <!-- Bal oldalt a nagy kép -->
       <div class="col-md-6 text-center">
-        <img id="product-image" src="" alt="" class="img-fluid" />
+        <img id="product-image" src="" alt="Termék képe" class="img-fluid" />
       </div>
       <!-- Jobb oldalt az adatok -->
       <div class="col-md-6">
@@ -97,11 +79,11 @@
         <h2 class="product-name" id="product-name"></h2>
         <p class="product-price" id="product-price"></p>
 
-        <!-- Példa fix méretek – valós esetben dinamikus is lehet -->
+        <!-- Méretválasztás -->
         <div class="mb-3">
           <p style="font-weight: bold;">Méret:</p>
           <div id="size-options" class="d-flex flex-wrap">
-            <!-- Ide generáljuk a méretek gombjait product.js-ben, vagy fixen is beírhatod -->
+            <p>Nincsenek elérhető méretek.</p> <!-- Ha nincs adat -->
           </div>
         </div>
 
@@ -119,7 +101,58 @@
     &copy; 2025 Kicksify. All rights reserved.
   </footer>
 
-  <script src="product.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const urlParams = new URLSearchParams(window.location.search);
+      const cipoId = urlParams.get("id");
+
+      if (!cipoId) {
+        alert("Hiba: Nem található termék az azonosító alapján.");
+        return;
+      }
+
+      // 📌 Cipő adatok betöltése az API-ból
+      fetch(`/api/cipok/${cipoId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            console.error("Hiba:", data.error);
+            return;
+          }
+          document.getElementById("product-image").src = data.image || "no-image.png";
+          document.getElementById("product-brand").textContent = data.marka;
+          document.getElementById("product-name").textContent = data.modell;
+          document.getElementById("product-price").textContent = `${Number(data.ar).toLocaleString("hu-HU")} Ft`;
+        })
+        .catch(err => console.error("Hiba a termék betöltésekor:", err));
+
+      // 📌 Cipő méretek betöltése
+      fetch(`/api/cipok/${cipoId}/meretek`)
+        .then(res => res.json())
+        .then(data => {
+          const sizeContainer = document.getElementById("size-options");
+          sizeContainer.innerHTML = ""; // Törli az alapértelmezett szöveget
+
+          if (data.length === 0) {
+            sizeContainer.innerHTML = "<p>Nincs elérhető méret.</p>";
+            return;
+          }
+
+          data.forEach(size => {
+            const sizeBtn = document.createElement("button");
+            sizeBtn.className = "size-option btn btn-outline-secondary";
+            sizeBtn.textContent = size.meret;
+            sizeBtn.onclick = () => {
+              document.querySelectorAll(".size-option").forEach(btn => btn.classList.remove("active"));
+              sizeBtn.classList.add("active");
+            };
+            sizeContainer.appendChild(sizeBtn);
+          });
+        })
+        .catch(err => console.error("Hiba a méretek betöltésekor:", err));
+    });
+  </script>
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
