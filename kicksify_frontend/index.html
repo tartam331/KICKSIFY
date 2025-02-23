@@ -1,57 +1,396 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hu">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kicksify</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kicksify</title>
+  
+  <!-- FontAwesome, Bootstrap, stb. -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    /* Eredeti stílusok – navbar, hero, footer stb. */
+    body { margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    .navbar {
+      background-color: rgba(0,0,0,0.8);
+      padding: 10px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: fixed; top: 0; width: 100%; z-index: 1000;
+    }
+    .navbar .navbar-brand {
+      font-size: 1.5rem; color: white; font-weight: bold;
+      position: absolute; left: 50%; transform: translateX(-50%);
+    }
+    .navbar .menu-toggle { font-size: 1.5rem; color: white; border: none; background: none; }
+    .navbar-icons { display: flex; align-items: center; gap: 15px; color: white; }
+    .navbar-icons i { cursor: pointer; }
+    main.container { padding-top: 80px; }
+    .hero-section {
+      background: url('images/hatter.png') no-repeat center center/cover;
+      height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      color: white; text-align: center;
+    }
+    footer { background-color: #333; color: white; padding: 10px 0; text-align: center; margin-top: 50px; }
+    
+    /* Modal stílusok – fekete-fehér */
+    .modal-content {
+      background-color: #000;
+      color: #fff;
+    }
+    .modal-header .modal-title { font-weight: bold; letter-spacing: 0.5px; }
+    .btn-close.btn-close-white { filter: invert(1); }
+    .form-label { color: #fff; }
+    .form-control {
+      background-color: #333;
+      color: #fff;
+      border: 1px solid #555;
+    }
+    .form-control:focus {
+      background-color: #444;
+      color: #fff;
+    }
+    .btn-primary {
+      background-color: #fff; 
+      color: #000; 
+      border: none;
+    }
+    .btn-primary:hover {
+      background-color: #ddd;
+      color: #000;
+    }
+    .toggle-link {
+      color: #fff;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+    
+    /* Az egyes modal részek alapértelmezett elrejtése */
+    #registerSection, #profileSection, #editProfileSection { display: none; }
+  </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <header class="navbar">
-        <button class="menu-toggle">
-            <i class="fas fa-bars"></i>
+  <!-- Navbar (változatlan) -->
+  <header class="navbar">
+    <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+    <h1 class="navbar-brand">Kicksify</h1>
+    <div class="navbar-icons">
+      <div class="dropdown">
+        <button class="btn btn-light dropdown-toggle" type="button" id="currencyDropdown" data-bs-toggle="dropdown">
+          HUF Ft
         </button>
-        <h1 class="navbar-brand">Kicksify</h1>
-        <div class="navbar-icons">
-            <div class="dropdown">
-                <button class="btn btn-light dropdown-toggle" type="button" id="currencyDropdown" data-bs-toggle="dropdown">
-                    HUF Ft
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">EUR €</a></li>
-                </ul>
-            </div>
-            <div class="dropdown">
-                <button class="btn btn-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown">
-                    Magyar
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#">English</a></li>
-                </ul>
-            </div>
-            <i class="fas fa-search"></i>
-            <i class="fas fa-user"></i>
-            <i class="fas fa-shopping-cart"></i>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#">EUR €</a></li>
+        </ul>
+      </div>
+      <div class="dropdown">
+        <button class="btn btn-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown">
+          Magyar
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#">English</a></li>
+        </ul>
+      </div>
+      <i class="fas fa-search"></i>
+      <!-- Felhasználó ikon -->
+      <i class="fas fa-user"></i>
+      <i class="fas fa-shopping-cart"></i>
+    </div>
+  </header>
+
+  <!-- Hero Section (változatlan) -->
+  <section class="hero-section">
+    <div class="hero-content text-center">
+      <h2>Rope lace</h2>
+      <a href="cipok.html" class="btn btn-dark">Tovább a kollekcióhoz</a>
+    </div>
+  </section>
+
+  <!-- Footer (változatlan) -->
+  <footer class="footer text-center py-4">
+    <p>&copy; 2025 Kicksify. All rights reserved.</p>
+  </footer>
+
+  <!-- Authentication Modal -->
+  <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <!-- Modal fejléc -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="authModalLabel">Bejelentkezés</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Bezár"></button>
         </div>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero-section">
-        <div class="hero-content text-center">
-            <h2>Rope lace</h2>
-            <a href="cipok.html" class="btn btn-dark">Tovább a kollekcióhoz</a>
+        <!-- Modal tartalom -->
+        <div class="modal-body">
+          <!-- Profil rész (ha be van jelentkezve) -->
+          <div id="profileSection">
+            <p id="profileUsername" class="mb-3"></p>
+            <button id="editProfileButton" class="btn btn-secondary w-100 mb-3">Adataim szerkesztése</button>
+            <button id="logoutButton" class="btn btn-primary w-100 mb-3">Kijelentkezés</button>
+            <a href="orders.html" class="btn btn-secondary w-100">Korábbi vásárlások</a>
+          </div>
+          <!-- Edit Profile Section -->
+          <div id="editProfileSection">
+            <form id="editProfileForm">
+              <div class="mb-3">
+                <label for="editVezeteknev" class="form-label">Vezetéknév</label>
+                <input type="text" class="form-control" id="editVezeteknev" required>
+              </div>
+              <div class="mb-3">
+                <label for="editKeresztnev" class="form-label">Keresztnév</label>
+                <input type="text" class="form-control" id="editKeresztnev" required>
+              </div>
+              <div class="mb-3">
+                <label for="editFelhasznalonev" class="form-label">Felhasználónév</label>
+                <input type="text" class="form-control" id="editFelhasznalonev" required>
+              </div>
+              <div class="mb-3">
+                <label for="editEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="editEmail" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Mentés</button>
+              <p class="mt-3 text-center"><span class="toggle-link" id="cancelEdit">Mégse</span></p>
+            </form>
+          </div>
+          <!-- Bejelentkezési rész (ha nincs bejelentkezve) -->
+          <div id="loginSection">
+            <form id="loginForm">
+              <div class="mb-3">
+                <label for="loginEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="loginEmail" required>
+              </div>
+              <div class="mb-3">
+                <label for="loginPassword" class="form-label">Jelszó</label>
+                <input type="password" class="form-control" id="loginPassword" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Bejelentkezés</button>
+            </form>
+            <p class="mt-3 text-center">
+              Még nincs fiókod? <span class="toggle-link" id="showRegister">Regisztráció</span>
+            </p>
+          </div>
+          <!-- Regisztrációs rész -->
+          <div id="registerSection">
+            <form id="registerForm">
+              <div class="mb-3">
+                <label for="registerFirstName" class="form-label">Keresztnév</label>
+                <input type="text" class="form-control" id="registerFirstName" required>
+              </div>
+              <div class="mb-3">
+                <label for="registerLastName" class="form-label">Vezetéknév</label>
+                <input type="text" class="form-control" id="registerLastName" required>
+              </div>
+              <div class="mb-3">
+                <label for="registerUsername" class="form-label">Felhasználónév</label>
+                <input type="text" class="form-control" id="registerUsername" required>
+              </div>
+              <div class="mb-3">
+                <label for="registerEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="registerEmail" required>
+              </div>
+              <div class="mb-3">
+                <label for="registerPassword" class="form-label">Jelszó</label>
+                <input type="password" class="form-control" id="registerPassword" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Regisztráció</button>
+            </form>
+            <p class="mt-3 text-center">
+              Van már fiókod? <span class="toggle-link" id="showLogin">Bejelentkezés</span>
+            </p>
+          </div>
         </div>
-    </section>
+      </div>
+    </div>
+  </div>
+  <!-- Vége a modalnak -->
 
-    <!-- Footer -->
-    <footer class="footer text-center py-4">
-        <p>&copy; 2025 Kicksify. All rights reserved.</p>
-    </footer>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Felhasználói ikon: modal megjelenítése és nézet beállítása
+      const userIcon = document.querySelector(".navbar-icons .fa-user");
+      userIcon.addEventListener("click", function() {
+        const authModalEl = document.getElementById("authModal");
+        const authModal = new bootstrap.Modal(authModalEl);
+        const loggedInUser = localStorage.getItem("loggedInUser");
+        if (loggedInUser) {
+          const user = JSON.parse(loggedInUser);
+          // Profil nézet: felhasználónév megjelenítése
+          document.getElementById("profileSection").style.display = "block";
+          document.getElementById("loginSection").style.display = "none";
+          document.getElementById("registerSection").style.display = "none";
+          document.getElementById("editProfileSection").style.display = "none";
+          document.getElementById("authModalLabel").textContent = "Profil";
+          document.getElementById("profileUsername").textContent = user.felhasznalonev;
+        } else {
+          // Nincs bejelentkezve: login nézet
+          document.getElementById("loginSection").style.display = "block";
+          document.getElementById("registerSection").style.display = "none";
+          document.getElementById("profileSection").style.display = "none";
+          document.getElementById("editProfileSection").style.display = "none";
+          document.getElementById("authModalLabel").textContent = "Bejelentkezés";
+        }
+        authModal.show();
+      });
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+      // Toggle: Regisztráció megjelenítése a bejelentkezés helyett
+      const showRegisterLink = document.getElementById("showRegister");
+      const showLoginLink = document.getElementById("showLogin");
+      const loginSection = document.getElementById("loginSection");
+      const registerSection = document.getElementById("registerSection");
+      const authModalLabel = document.getElementById("authModalLabel");
+      showRegisterLink.addEventListener("click", () => {
+        loginSection.style.display = "none";
+        registerSection.style.display = "block";
+        authModalLabel.textContent = "Regisztráció";
+      });
+      showLoginLink.addEventListener("click", () => {
+        registerSection.style.display = "none";
+        loginSection.style.display = "block";
+        authModalLabel.textContent = "Bejelentkezés";
+      });
+
+      // Logout gomb kezelése
+      const logoutButton = document.getElementById("logoutButton");
+      logoutButton.addEventListener("click", function() {
+        localStorage.removeItem("loggedInUser");
+        alert("Kijelentkezve!");
+        // Visszaváltás a bejelentkezési nézetre
+        document.getElementById("profileSection").style.display = "none";
+        document.getElementById("loginSection").style.display = "block";
+        authModalLabel.textContent = "Bejelentkezés";
+        // Modal bezárása
+        const authModalEl = document.getElementById("authModal");
+        const authModal = bootstrap.Modal.getInstance(authModalEl);
+        authModal.hide();
+      });
+
+      // Toggle: Profil szerkesztése
+      const editProfileButton = document.getElementById("editProfileButton");
+      const profileSection = document.getElementById("profileSection");
+      const editProfileSection = document.getElementById("editProfileSection");
+      const cancelEditElem = document.getElementById("cancelEdit"); // Gondoskodj róla, hogy ez az elem létezik!
+      if(editProfileButton) {
+        editProfileButton.addEventListener("click", () => {
+          const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+          document.getElementById("editVezeteknev").value = loggedInUser.vezeteknev;
+          document.getElementById("editKeresztnev").value = loggedInUser.keresztnev;
+          document.getElementById("editFelhasznalonev").value = loggedInUser.felhasznalonev;
+          document.getElementById("editEmail").value = loggedInUser.email;
+          profileSection.style.display = "none";
+          editProfileSection.style.display = "block";
+          authModalLabel.textContent = "Profil szerkesztése";
+        });
+      }
+      if(cancelEditElem) {
+        cancelEditElem.addEventListener("click", () => {
+          editProfileSection.style.display = "none";
+          profileSection.style.display = "block";
+          authModalLabel.textContent = "Profil";
+        });
+      }
+
+      // Bejelentkezési űrlap kezelése
+      const loginForm = document.getElementById("loginForm");
+      loginForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+        fetch("http://localhost:5000/api/felhasznalok/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, jelszo_hash: password })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            localStorage.setItem("loggedInUser", JSON.stringify(data.user));
+            const authModalEl = document.getElementById("authModal");
+            const authModal = bootstrap.Modal.getInstance(authModalEl);
+            authModal.hide();
+            alert("Sikeres bejelentkezés!");
+          } else {
+            alert("Hibás email vagy jelszó!");
+          }
+        })
+        .catch(err => {
+          console.error("Bejelentkezési hiba:", err);
+          alert("Hiba történt a bejelentkezéskor.");
+        });
+      });
+
+      // Regisztrációs űrlap kezelése
+      const registerForm = document.getElementById("registerForm");
+      registerForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        const vezeteknev = document.getElementById("registerLastName").value;
+        const keresztnev = document.getElementById("registerFirstName").value;
+        const felhasznalonev = document.getElementById("registerUsername").value;
+        const email = document.getElementById("registerEmail").value;
+        const password = document.getElementById("registerPassword").value;
+        fetch("http://localhost:5000/api/felhasznalok", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vezeteknev, keresztnev, felhasznalonev, email, jelszo_hash: password })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert("Sikeres regisztráció! Most már bejelentkezhetsz.");
+            registerSection.style.display = "none";
+            loginSection.style.display = "block";
+            authModalLabel.textContent = "Bejelentkezés";
+          } else {
+            alert("Hiba történt a regisztrációkor: " + data.error);
+          }
+        })
+        .catch(err => {
+          console.error("Regisztrációs hiba:", err);
+          alert("Hiba történt a regisztrációkor.");
+        });
+      });
+
+      // Edit Profile form kezelése
+      const editProfileForm = document.getElementById("editProfileForm");
+      editProfileForm.addEventListener("submit", function(e) {
+        e.preventDefault();
+        const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
+        const userId = loggedInUser.felhasznalo_id;
+        const vezeteknev = document.getElementById("editVezeteknev").value;
+        const keresztnev = document.getElementById("editKeresztnev").value;
+        const felhasznalonev = document.getElementById("editFelhasznalonev").value;
+        const email = document.getElementById("editEmail").value;
+        fetch(`http://localhost:5000/api/felhasznalok/${userId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vezeteknev, keresztnev, felhasznalonev, email })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert("Profil frissítve!");
+            loggedInUser.vezeteknev = vezeteknev;
+            loggedInUser.keresztnev = keresztnev;
+            loggedInUser.felhasznalonev = felhasznalonev;
+            loggedInUser.email = email;
+            localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
+            editProfileSection.style.display = "none";
+            profileSection.style.display = "block";
+            authModalLabel.textContent = "Profil";
+            document.getElementById("profileUsername").textContent = felhasznalonev;
+          } else {
+            alert("Profil frissítési hiba: " + data.error);
+          }
+        })
+        .catch(err => {
+          console.error("Profil frissítési hiba:", err);
+          alert("Hiba történt a profil frissítésekor.");
+        });
+      });
+    });
+  </script>
 </body>
 </html>
