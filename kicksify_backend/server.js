@@ -14,7 +14,7 @@ const db = mysql.createConnection({
     user: process.env.DB_USER || "root",
     password: process.env.DB_PASS || "", // Ha van jelszavad, add hozzá
     database: process.env.DB_NAME || "kicksify",
-    port: process.env.DB_PORT || 3307
+    port: process.env.DB_PORT || 3306
 });
 
 // 📌 Adatbázis kapcsolódás kezelése
