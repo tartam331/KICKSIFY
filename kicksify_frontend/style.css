@@ -1,78 +1,128 @@
 body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
 }
 .navbar {
-    background-color: rgba(0, 0, 0, 0.8);
-    padding: 10px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
 }
 .navbar .navbar-brand {
-    font-size: 1.5rem;
-    color: white;
-    font-weight: bold;
-    text-transform: uppercase;
+  font-size: 1.5rem;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 .navbar .menu-toggle {
-    font-size: 1.5rem;
-    color: white;
-    border: none;
-    background: none;
+  font-size: 1.5rem;
+  color: white;
+  border: none;
+  background: none;
 }
 .navbar .navbar-icons {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 .navbar .navbar-icons i {
-    color: white;
-    font-size: 1.2rem;
-    cursor: pointer;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
 }
 .navbar .dropdown .dropdown-toggle {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1rem;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
 }
 .navbar .dropdown-menu {
-    background-color: #333;
+  background-color: #333;
 }
 .navbar .dropdown-menu .dropdown-item {
-    color: white;
+  color: white;
 }
 .navbar .dropdown-menu .dropdown-item:hover {
-    background-color: #555;
+  background-color: #555;
 }
 .hero-section {
-    position: relative;
-    height: 100vh;
-    background: url('images/hatter.png') no-repeat center center/cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: relative;
+  height: 100vh;
+  background: url('images/hatter.png') no-repeat center center/cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .hero-content {
-    color: white;
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
-    position: absolute;
-    bottom: 100px; /* Közvetlenül a footer felett */
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
+  color: white;
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+  text-align: center;
 }
 .hero-title {
-    font-size: 3rem;
-    margin-bottom: 20px;
+  font-size: 3rem;
+  margin-bottom: 20px;
 }
+.section-title {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 2.5rem;
+  color: #333;
+}
+.card {
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-10px);
+}
+.card-img-overlay {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 20px;
+}
+.partners img {
+  filter: grayscale(100%);
+  transition: filter 0.3s ease;
+}
+.partners img:hover {
+  filter: grayscale(0%);
+}
+.newsletter {
+  background-color: #000;
+  color: white;
+  padding: 40px 20px;
+}
+.newsletter form {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+.newsletter input {
+  width: 50%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+}
+.newsletter button {
+  padding: 10px 20px;
+  
+  color: #000;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
 .footer {
-    background-color: #333;
-    color: white;
+  background-color: #222;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  margin-top: 0; /* Nincs extra margó */
 }
