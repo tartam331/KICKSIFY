@@ -59,14 +59,29 @@ body {
   justify-content: center;
   align-items: center;
 }
+
 .hero-content {
-  color: white;
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
-  text-align: center;
+  position: absolute;
+  bottom: 40px;
+  left: 40px;
 }
-.hero-title {
-  font-size: 3rem;
-  margin-bottom: 20px;
+
+.hero-content a {
+  display: inline-block;
+  background-color: white;
+  color: black;
+  font-size: 1.5rem; /* Nagyobb betűméret */
+  padding: 15px 30px; /* Nagyobb méret */
+  border-radius: 12px;
+  font-weight: bold;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  text-decoration: none;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.hero-content a:hover {
+  background-color: #e6e6e6;
+  transform: translateY(-5px);
 }
 .section-title {
   text-align: center;
@@ -212,4 +227,66 @@ body {
 .search-result-item p {
   margin: 0;
   color: #555;
+}
+
+
+/* Kosár oldalsó panel stílusa */
+.cart-modal {
+  position: fixed;
+  top: 0;
+  right: -100%; /* Kezdetben kívül legyen a képernyőn */
+  width: 400px;
+  height: 100%;
+  background-color: white;
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 1001;
+  transition: right 0.3s ease;
+}
+
+
+
+.cart-modal {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 400px;
+  height: 100%;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+  transition: right 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+.cart-modal.active {
+  right: 0;
+}
+
+.cart-content {
+  position: relative;
+  padding: 20px;
+}
+
+.cart-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: black; /* A gomb színének beállítása */
+}
+
+.cart-close-btn:hover {
+  color: grey; /* Szín változtatása hover esetén */
+}
+
+#clear-cart {
+
+  background-color: black;
+  color: white;
+  
+
 }

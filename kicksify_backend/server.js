@@ -105,6 +105,38 @@ app.post("/api/kosar", (req, res) => {
   });
 });
 
+// Kosár lekérése felhasználó alapján
+app.get("/api/kosar/:felhasznalo_id", (req, res) => {
+  const felhasznalo_id = req.params.felhasznalo_id;
+  const query = `
+    SELECT k.*, c.marka, c.modell, c.kep 
+    FROM kosar k
+    JOIN cipok c ON k.cipo_id = c.cipo_id
+    WHERE k.felhasznalo_id = ?
+  `;
+
+  db.query(query, [felhasznalo_id], (err, results) => {
+    if (err) {
+      console.error("❌ Kosár lekérdezési hiba:", err);
+      return res.status(500).json({ error: "Hiba a kosár lekérdezésekor" });
+    }
+    res.json(results);
+  });
+});
+
+// Kosárból termék eltávolítása
+app.delete("/api/kosar/:id", (req, res) => {
+  const kosarId = req.params.id;
+  const query = "DELETE FROM kosar WHERE kosar_id = ?";
+  db.query(query, [kosarId], (err, result) => {
+    if (err) {
+      console.error("❌ Hiba a törlés során:", err);
+      return res.status(500).json({ error: "Nem sikerült törölni a kosárból" });
+    }
+    res.json({ success: true, message: "Termék eltávolítva a kosárból" });
+  });
+});
+
 // Bejelentkezés
 app.post("/api/felhasznalok/login", (req, res) => {
   const { email, jelszo_hash } = req.body;

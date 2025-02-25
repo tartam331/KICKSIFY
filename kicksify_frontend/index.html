@@ -130,14 +130,15 @@
       <!-- Felhasználó ikon -->
       <i class="fas fa-user"></i>
       <i class="fas fa-shopping-cart"></i>
+      <!-- Kosár oldalról felugró panel -->
+
+
     </div>
   </header>
 
-  <!-- Hero Section (változatlan) -->
   <section class="hero-section">
-    <div class="hero-content text-center">
-      <h2></h2>
-      <a href="cipok.html" class="btn btn-dark">Tovább a kollekcióhoz</a>
+    <div class="hero-content">
+      <a href="cipok.html">Tovább a kollekcióhoz</a>
     </div>
   </section>
 
@@ -595,5 +596,18 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
   <script src="script.js"></script>
+  <div id="cartModal" class="cart-modal">
+    <div class="cart-content">
+        <!-- Bezárás gomb -->
+        <button class="cart-close-btn" aria-label="Bezárás">
+            &times; <!-- Ez az × karakter jelöli a bezárás jelet -->
+        </button>
+        <!-- Kosár tartalma -->
+        <h2>Kosár tartalma</h2>
+        <div id="cart-items"></div>
+        <button id="clear-cart" class="btn">Kosár ürítése</button>
+    </div>
+</div>
+
 </body>
 </html>
