@@ -126,3 +126,90 @@ body {
   text-align: center;
   margin-top: 0; /* Nincs extra margó */
 }
+
+/* Oldalról becsúszó kereső */
+.side-search {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 30%;
+  height: 100%;
+  background-color: white;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+  padding: 30px;
+  transition: right 0.3s ease-in-out;
+  z-index: 2000;
+}
+
+/* Bekapcsolva oldalra csúszik */
+.side-search.active {
+  right: 0;
+}
+
+/* Kereső fejléc */
+.search-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Input formázása */
+#sideSearchInput {
+  width: 90%;
+  border: none;
+  border-bottom: 2px solid black;
+  padding: 10px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  outline: none;
+  color: black;
+}
+
+/* X gomb */
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
+}
+
+/* Találatok stílusa */
+.search-results {
+  margin-top: 20px;
+  overflow-y: auto;
+  max-height: 80vh;
+}
+
+/* Találat elem formázás */
+.search-result-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.search-result-item:hover {
+  background-color: #f0f0f0;
+}
+
+.search-result-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  margin-right: 15px;
+  border-radius: 5px;
+}
+
+.search-result-item h6 {
+  margin: 0;
+  font-weight: bold;
+}
+
+.search-result-item p {
+  margin: 0;
+  color: #555;
+}
