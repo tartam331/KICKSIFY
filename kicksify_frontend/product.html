@@ -29,9 +29,12 @@
   <header class="navbar">
     <a class="navbar-brand" href="cipok.html">Cipők</a>
     <div class="navbar-icons">
-      <i class="fas fa-search"></i>
-      <i class="fas fa-user"></i>
-      <i class="fas fa-shopping-cart"></i>
+
+       <!-- Felhasználó ikon -->
+       <i class="fas fa-user"></i>
+       <i class="fas fa-shopping-cart"></i>
+       <!-- Kosár oldalról felugró panel -->
+       
     </div>
   </header>
 
@@ -79,7 +82,7 @@
       }
 
       try {
-        // 📌 Cipő adatok betöltése
+        // Cipő adatok betöltése
         const resCipo = await fetch(`/api/cipok/${cipoId}`);
         const dataCipo = await resCipo.json();
 
@@ -88,7 +91,7 @@
           return;
         }
 
-        // 🔥 Kép elérési útvonal beállítása
+        // Kép elérési útvonal beállítása
         const productImage = document.getElementById("product-image");
         productImage.src = `http://localhost:5000/cipok/${dataCipo.kep}` || "no-image.png";
 
@@ -101,7 +104,7 @@
         document.getElementById("product-name").textContent = dataCipo.modell;
         document.getElementById("product-price").textContent = `${Number(dataCipo.ar).toLocaleString("hu-HU")} Ft`;
 
-        // 📌 Cipő méretek betöltése
+        // Cipő méretek betöltése
         const resMeretek = await fetch(`/api/cipok/${cipoId}/meretek`);
         const dataMeretek = await resMeretek.json();
 

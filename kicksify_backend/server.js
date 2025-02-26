@@ -16,7 +16,7 @@ const db = mysql.createConnection({
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASS || "",
   database: process.env.DB_NAME || "kicksify",
-  port: process.env.DB_PORT || 3307
+  port: process.env.DB_PORT || 3306
 });
 
 // Adatbázis kapcsolódás kezelése
@@ -86,6 +86,19 @@ app.get("/api/cipok/:id", (req, res) => {
     };
 
     res.json(cipo);
+  });
+});
+
+// Új végpont: Cipő méretek lekérése
+app.get("/api/cipok/:id/meretek", (req, res) => {
+  const cipoId = req.params.id;
+  const query = "SELECT meret FROM meretek WHERE cipo_id = ?";
+  db.query(query, [cipoId], (err, results) => {
+    if (err) {
+      console.error("❌ Méretek lekérdezési hiba:", err);
+      return res.status(500).json({ error: "Adatbázis hiba" });
+    }
+    res.json(results);
   });
 });
 
