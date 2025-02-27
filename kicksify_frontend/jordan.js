@@ -1,7 +1,6 @@
-let allJordanShoes = []; // Az összes Jordan cipő tárolására
+let allJordanShoes = []; // Adidas cipők tömbje
 
 document.addEventListener("DOMContentLoaded", function() {
-  // Lekérjük az adatbázisból a Jordan cipőket
   fetch("http://localhost:5000/api/cipok?marka=Jordan")
     .then(response => {
       if (!response.ok) {
@@ -10,63 +9,64 @@ document.addEventListener("DOMContentLoaded", function() {
       return response.json();
     })
     .then(data => {
-      allJordanShoes = data;
-      renderShoes(allJordanShoes);
+      allJordanShoes = data; // Mentés a megfelelő változóba
+      console.log("✅ Betöltött Adidas cipők:", allJordanShoes); // Debug
+
+      renderShoes(allJordanShoes); // Kirajzolás
     })
     .catch(error => {
       console.error("❌ Hiba a cipők betöltésekor:", error);
       document.getElementById("shoe-container").innerHTML = "<p>Hiba történt az adatok betöltésekor.</p>";
     });
 
-  // Rendezés ár szerint a legördülő menüből
-  const sortSelect = document.getElementById("sortSelect");
-  sortSelect.addEventListener("change", function() {
+  document.getElementById("sortSelect").addEventListener("change", function() {
     const value = this.value;
+
     if (value === "asc") {
-      // Növekvő sorrend: kisebb árú cipők elöl
-      allJordanShoes.sort((a, b) => a.ar - b.ar);
+      allNikeShoes.sort((a, b) => a.ar - b.ar);
     } else if (value === "desc") {
-      // Csökkenő sorrend: nagyobb árú cipők elöl
-      allJordanShoes.sort((a, b) => b.ar - a.ar);
-    } else {
-      // "Kiemelt termékek" vagy featured – itt az eredeti sorrendet hagyhatod meg,
-      // vagy implementálhatsz egy saját logikát.
+      allNikeShoes.sort((a, b) => b.ar - a.ar);
     }
+
     renderShoes(allJordanShoes);
   });
 });
 
 /**
- * Cipők kirajzolása a #shoe-container elembe.
- * @param {Array} shoeArray - A megjelenítendő Jordan cipők tömbje
+ * Cipők megjelenítése
  */
 function renderShoes(shoeArray) {
   const container = document.getElementById("shoe-container");
   container.innerHTML = "";
 
   if (!Array.isArray(shoeArray) || shoeArray.length === 0) {
-    container.innerHTML = "<p>Nincs elérhető Jordan cipő.</p>";
+    container.innerHTML = "<p>Nincs elérhető Adidas cipő.</p>";
     return;
   }
 
   shoeArray.forEach(cip => {
-    // Bootstrap: mobilon 1 oszlop (col-12), md-től 3 oszlop (col-md-4)
+    // Az első képfájl kiválasztása a listából
+    const firstImage = cip.kep.split(",")[0].trim(); // Első kép kiválasztása
+    const imgSrc = `http://localhost:5000/cipok/${firstImage}`;
+    console.log("🔍 Kép megjelenítéshez:", imgSrc); // Ellenőrzés
+
     const col = document.createElement("div");
     col.className = "col-12 col-md-4 shoe-item";
 
-    // Formázott ár: pl. "154,990 Ft"
     const arFormazott = Number(cip.ar).toLocaleString("hu-HU") + " Ft";
 
-    // Kattintás: a termék részleteihez navigál (product.html? id paraméterrel)
     col.onclick = function() {
       window.location.href = `product.html?id=${cip.cipo_id}`;
     };
 
     col.innerHTML = `
-      <img src="http://localhost:5000/cipok/${cip.kep}" alt="${cip.modell}">
+      <img src="${imgSrc}" alt="${cip.modell}" class="shoe-image"
+        onerror="this.onerror=null; this.src='images/default-image.jpg';"
+        style="width: 100%; height: auto; display: block;">
       <p class="shoe-name">${cip.marka} ${cip.modell}</p>
       <p class="shoe-price">${arFormazott}</p>
     `;
+
     container.appendChild(col);
   });
 }

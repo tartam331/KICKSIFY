@@ -1,48 +1,79 @@
-document.addEventListener("DOMContentLoaded", function() {
-    // Cipő ID lekérése az URL-ből
-    const params = new URLSearchParams(window.location.search);
-    const cipoId = params.get("id");
+document.addEventListener("DOMContentLoaded", async function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const cipoId = urlParams.get("id");
   
     if (!cipoId) {
-        console.error("❌ Nincs cipő ID az URL-ben.");
-        return;
+      document.getElementById("product-container").innerHTML = "<p>Hiba: Nem található a termék.</p>";
+      return;
     }
   
-    // Cipő adatainak lekérése
-    fetch(`/api/cipok/${cipoId}`)
-        .then(response => response.json())
-        .then(data => {
-            document.getElementById("product-name").textContent = data.modell;
-            document.getElementById("product-brand").textContent = data.marka;
-            document.getElementById("product-price").textContent = Number(data.ar).toLocaleString("hu-HU") + " Ft";
-            document.getElementById("product-image").src = `/images/${data.kep}`;
-        })
-        .catch(error => console.error("❌ Hiba a cipő adatainak betöltésekor:", error));
+    try {
+      // Cipő adatok lekérése
+      const resCipo = await fetch(`http://localhost:5000/api/cipok/${cipoId}`);
   
-    // Méretek lekérése
-    fetch(`/api/cipok/${cipoId}/meretek`)
-        .then(response => response.json())
-        .then(data => {
-            const sizeContainer = document.getElementById("size-options");
-            sizeContainer.innerHTML = ""; // Alapértelmezett tartalom törlése
+      if (!resCipo.ok) {
+        console.error(`❌ API hiba: ${resCipo.status} - ${resCipo.statusText}`);
+        document.getElementById("product-container").innerHTML = "<p>Ez a termék nem található.</p>";
+        return;
+      }
   
-            if (data.error || data.length === 0) {
-                sizeContainer.innerHTML = "<p>Nincs elérhető méret.</p>";
-                return;
-            }
+      const responseText = await resCipo.text();
+      
+      // Ellenőrizzük, hogy valóban JSON-e az adat
+      let shoe;
+      try {
+        shoe = JSON.parse(responseText);
+      } catch (jsonError) {
+        console.error("❌ JSON hiba, nem megfelelő válasz az API-tól:", responseText);
+        document.getElementById("product-container").innerHTML = "<p>Hiba történt az adatok betöltésekor.</p>";
+        return;
+      }
   
-            data.forEach(size => {
-                const sizeButton = document.createElement("button");
-                sizeButton.className = "size-option btn btn-outline-secondary";
-                sizeButton.textContent = size.meret;
-                sizeButton.onclick = () => {
-                    document.querySelectorAll(".size-option").forEach(btn => btn.classList.remove("active"));
-                    sizeButton.classList.add("active");
-                };
-                sizeContainer.appendChild(sizeButton);
-            });
-        })
-        .catch(error => console.error("❌ Hiba a méretek betöltésekor:", error));
+      console.log("✅ Betöltött cipő adatok:", shoe);
+  
+      renderShoeDetails(shoe);
+    } catch (err) {
+      console.error("❌ Hiba a termék betöltésekor:", err);
+    }
   });
-
+  
+  /**
+   * Cipő részleteinek megjelenítése
+   */
+  function renderShoeDetails(shoe) {
+    const galleryContainer = document.getElementById("shoe-gallery");
+    const sizeContainer = document.getElementById("size-options");
+  
+    // **Képek kezelése** → több kép esetén vesszővel elválasztott stringből tömb
+    const imageFiles = shoe.kep.split(",").map(img => img.trim());
+    console.log("🔍 Cipő képek:", imageFiles);
+  
+    galleryContainer.innerHTML = "";
+    imageFiles.forEach(imgFile => {
+      const imgSrc = `http://localhost:5000/cipok/${imgFile}`;
+      const imgElement = document.createElement("img");
+      imgElement.src = imgSrc;
+      imgElement.alt = shoe.modell;
+      imgElement.onerror = () => { imgElement.src = "images/default-image.jpg"; };
+      galleryContainer.appendChild(imgElement);
+    });
+  
+    document.getElementById("product-brand").textContent = shoe.marka;
+    document.getElementById("product-name").textContent = shoe.modell;
+    document.getElementById("product-price").textContent = `${Number(shoe.ar).toLocaleString("hu-HU")} Ft`;
+  
+    // **Méretek kezelése** → ha vannak, tömbbé alakítjuk
+    const sizes = shoe.meretek ? shoe.meretek.split(",").map(size => size.trim()) : [];
+    sizeContainer.innerHTML = sizes.length > 0 
+      ? sizes.map(size => `<button class="size-option">${size}</button>`).join("")
+      : "<p>Nincs elérhető méret.</p>";
+  
+    // Méret kiválasztása
+    document.querySelectorAll(".size-option").forEach(button => {
+      button.addEventListener("click", function () {
+        document.querySelectorAll(".size-option").forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+      });
+    });
+  }
   
