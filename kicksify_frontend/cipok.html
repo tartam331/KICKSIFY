@@ -12,6 +12,9 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
     .navbar {
@@ -41,31 +44,44 @@
     }
 
     .brand-logos {
-      margin-top: 120px;
-      padding: 50px 0;
-      min-height: calc(100vh - 240px);
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      width: 100%;
+    }
+
+    .brand-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+      height: 100%;
     }
 
     .brand-card {
       background-color: white;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      padding: 40px;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      height: 250px;
-      display: contents;
+      padding: 20px;
+      display: flex;
       align-items: center;
       justify-content: center;
+      height: 100%;
+      min-height: 250px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .brand-card:hover {
-      transform: translateY(-10px);
+      transform: translateY(-5px);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     }
 
     .brand-card img {
       width: 100%;
-      height: 100%;
+      height: auto;
       object-fit: contain;
     }
 
@@ -74,7 +90,6 @@
       color: white;
       padding: 20px 0;
       text-align: center;
-      margin-top: 0;
     }
   </style>
 </head>
@@ -82,331 +97,37 @@
   <header class="navbar">
     <a href="index.html" class="navbar-brand">Kicksify</a>
     <div class="navbar-icons">
-      <i class="fas fa-search" style="cursor: pointer;"></i>
+      <i class="fas fa-search"></i>
       <i class="fas fa-user"></i>
       <i class="fas fa-shopping-cart"></i>
     </div>
   </header>
 
   <section class="brand-logos">
-    <div class="container">
-      <h2 class="text-center mb-5">Válassz a legnagyobb márkák közül</h2>
-      <div class="row g-4">
-        <div class="col-md-4 col-sm-6">
-          <a href="nike.html" class="brand-card d-block text-center">
-            <img src="images/Logo_nike_principal.png" alt="Nike">
-          </a>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <a href="jordan.html" class="brand-card d-block text-center">
-            <img src="images/jordan.png" alt="Jordan">
-          </a>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <a href="adidas.html" class="brand-card d-block text-center">
-            <img src="images/Adidas-Logo-500x281.png" alt="Adidas">
-          </a>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <a href="https://www.maisonmargiela.com" class="brand-card d-block text-center">
-            <img src="images/Maison_Margiela_logo.png" alt="Maison Margiela">
-          </a>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <a href="https://www.rickowens.eu" class="brand-card d-block text-center">
-            <img src="images/rickowens_slideshow.png" alt="Rick Owens">
-          </a>
-        </div>
-        <div class="col-md-4 col-sm-6">
-          <a href="https://www.balenciaga.com" class="brand-card d-block text-center">
-            <img src="images/balenciaga.png" alt="Balenciaga">
-          </a>
-        </div>
-      </div>
+    <div class="brand-grid">
+      <a href="nike.html" class="brand-card">
+        <img src="images/Logo_nike_principal.png" alt="Nike">
+      </a>
+      <a href="jordan.html" class="brand-card">
+        <img src="images/jordan.png" alt="Jordan">
+      </a>
+      <a href="adidas.html" class="brand-card">
+        <img src="images/Adidas-Logo-500x281.png" alt="Adidas">
+      </a>
+      <a href="maison.html" class="brand-card">
+        <img src="images/Maison_Margiela_logo.png" alt="Maison Margiela">
+      </a>
+      <a href="https://www.rickowens.eu" class="brand-card">
+        <img src="images/rickowens_slideshow.png" alt="Rick Owens">
+      </a>
+      <a href="https://www.balenciaga.com" class="brand-card">
+        <img src="images/balenciaga.png" alt="Balenciaga">
+      </a>
     </div>
   </section>
 
   <footer class="footer">
     <p>&copy; 2025 Kicksify. Minden jog fenntartva.</p>
   </footer>
-
-  <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <!-- Modal fejléc -->
-        <div class="modal-header">
-          <h5 class="modal-title" id="authModalLabel">Bejelentkezés</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Bezár"></button>
-        </div>
-        <!-- Modal tartalom -->
-        <div class="modal-body">
-          <!-- Profil rész (ha be van jelentkezve) -->
-          <div id="profileSection">
-            <p id="profileUsername" class="mb-3"></p>
-            <button id="editProfileButton" class="btn btn-secondary w-100 mb-3">Adataim szerkesztése</button>
-            <button id="logoutButton" class="btn btn-primary w-100 mb-3">Kijelentkezés</button>
-            <a href="orders.html" class="btn btn-secondary w-100">Korábbi vásárlások</a>
-          </div>
-          <!-- Edit Profile Section -->
-          <div id="editProfileSection">
-            <form id="editProfileForm">
-              <div class="mb-3">
-                <label for="editVezeteknev" class="form-label">Vezetéknév</label>
-                <input type="text" class="form-control" id="editVezeteknev" required>
-              </div>
-              <div class="mb-3">
-                <label for="editKeresztnev" class="form-label">Keresztnév</label>
-                <input type="text" class="form-control" id="editKeresztnev" required>
-              </div>
-              <div class="mb-3">
-                <label for="editFelhasznalonev" class="form-label">Felhasználónév</label>
-                <input type="text" class="form-control" id="editFelhasznalonev" required>
-              </div>
-              <div class="mb-3">
-                <label for="editEmail" class="form-label">Email</label>
-                <input type="email" class="form-control" id="editEmail" required>
-              </div>
-              <button type="submit" class="btn btn-primary w-100">Mentés</button>
-              <p class="mt-3 text-center"><span class="toggle-link" id="cancelEdit">Mégse</span></p>
-            </form>
-          </div>
-          <!-- Bejelentkezési rész (ha nincs bejelentkezve) -->
-          <div id="loginSection">
-            <form id="loginForm">
-              <div class="mb-3">
-                <label for="loginEmail" class="form-label">Email</label>
-                <input type="email" class="form-control" id="loginEmail" required>
-              </div>
-              <div class="mb-3">
-                <label for="loginPassword" class="form-label">Jelszó</label>
-                <input type="password" class="form-control" id="loginPassword" required>
-              </div>
-              <button type="submit" class="btn btn-primary w-100">Bejelentkezés</button>
-            </form>
-            <p class="mt-3 text-center">
-              Még nincs fiókod? <span class="toggle-link" id="showRegister">Regisztráció</span>
-            </p>
-          </div>
-          <!-- Regisztrációs rész -->
-          <div id="registerSection">
-            <form id="registerForm">
-              <div class="mb-3">
-                <label for="registerFirstName" class="form-label">Keresztnév</label>
-                <input type="text" class="form-control" id="registerFirstName" required>
-              </div>
-              <div class="mb-3">
-                <label for="registerLastName" class="form-label">Vezetéknév</label>
-                <input type="text" class="form-control" id="registerLastName" required>
-              </div>
-              <div class="mb-3">
-                <label for="registerUsername" class="form-label">Felhasználónév</label>
-                <input type="text" class="form-control" id="registerUsername" required>
-              </div>
-              <div class="mb-3">
-                <label for="registerEmail" class="form-label">Email</label>
-                <input type="email" class="form-control" id="registerEmail" required>
-              </div>
-              <div class="mb-3">
-                <label for="registerPassword" class="form-label">Jelszó</label>
-                <input type="password" class="form-control" id="registerPassword" required>
-              </div>
-              <button type="submit" class="btn btn-primary w-100">Regisztráció</button>
-            </form>
-            <p class="mt-3 text-center">
-              Van már fiókod? <span class="toggle-link" id="showLogin">Bejelentkezés</span>
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Vége a modalnak -->
-
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      // Felhasználói ikon: modal megjelenítése és nézet beállítása
-      const userIcon = document.querySelector(".navbar-icons .fa-user");
-      userIcon.addEventListener("click", function() {
-        const authModalEl = document.getElementById("authModal");
-        const authModal = new bootstrap.Modal(authModalEl);
-        const loggedInUser = localStorage.getItem("loggedInUser");
-        if (loggedInUser) {
-          const user = JSON.parse(loggedInUser);
-          // Profil nézet: felhasználónév megjelenítése
-          document.getElementById("profileSection").style.display = "block";
-          document.getElementById("loginSection").style.display = "none";
-          document.getElementById("registerSection").style.display = "none";
-          document.getElementById("editProfileSection").style.display = "none";
-          document.getElementById("authModalLabel").textContent = "Profil";
-          document.getElementById("profileUsername").textContent = user.felhasznalonev;
-        } else {
-          // Nincs bejelentkezve: login nézet
-          document.getElementById("loginSection").style.display = "block";
-          document.getElementById("registerSection").style.display = "none";
-          document.getElementById("profileSection").style.display = "none";
-          document.getElementById("editProfileSection").style.display = "none";
-          document.getElementById("authModalLabel").textContent = "Bejelentkezés";
-        }
-        authModal.show();
-      });
-
-      // Toggle: Regisztráció megjelenítése a bejelentkezés helyett
-      const showRegisterLink = document.getElementById("showRegister");
-      const showLoginLink = document.getElementById("showLogin");
-      const loginSection = document.getElementById("loginSection");
-      const registerSection = document.getElementById("registerSection");
-      const authModalLabel = document.getElementById("authModalLabel");
-      showRegisterLink.addEventListener("click", () => {
-        loginSection.style.display = "none";
-        registerSection.style.display = "block";
-        authModalLabel.textContent = "Regisztráció";
-      });
-      showLoginLink.addEventListener("click", () => {
-        registerSection.style.display = "none";
-        loginSection.style.display = "block";
-        authModalLabel.textContent = "Bejelentkezés";
-      });
-
-      // Logout gomb kezelése
-      const logoutButton = document.getElementById("logoutButton");
-      logoutButton.addEventListener("click", function() {
-        localStorage.removeItem("loggedInUser");
-        alert("Kijelentkezve!");
-        // Visszaváltás a bejelentkezési nézetre
-        document.getElementById("profileSection").style.display = "none";
-        document.getElementById("loginSection").style.display = "block";
-        authModalLabel.textContent = "Bejelentkezés";
-        // Modal bezárása
-        const authModalEl = document.getElementById("authModal");
-        const authModal = bootstrap.Modal.getInstance(authModalEl);
-        authModal.hide();
-      });
-
-      // Toggle: Profil szerkesztése
-      const editProfileButton = document.getElementById("editProfileButton");
-      const profileSection = document.getElementById("profileSection");
-      const editProfileSection = document.getElementById("editProfileSection");
-      const cancelEditElem = document.getElementById("cancelEdit"); // Gondoskodj róla, hogy ez az elem létezik!
-      if(editProfileButton) {
-        editProfileButton.addEventListener("click", () => {
-          const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-          document.getElementById("editVezeteknev").value = loggedInUser.vezeteknev;
-          document.getElementById("editKeresztnev").value = loggedInUser.keresztnev;
-          document.getElementById("editFelhasznalonev").value = loggedInUser.felhasznalonev;
-          document.getElementById("editEmail").value = loggedInUser.email;
-          profileSection.style.display = "none";
-          editProfileSection.style.display = "block";
-          authModalLabel.textContent = "Profil szerkesztése";
-        });
-      }
-      if(cancelEditElem) {
-        cancelEditElem.addEventListener("click", () => {
-          editProfileSection.style.display = "none";
-          profileSection.style.display = "block";
-          authModalLabel.textContent = "Profil";
-        });
-      }
-
-      // Bejelentkezési űrlap kezelése
-      const loginForm = document.getElementById("loginForm");
-      loginForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-        const email = document.getElementById("loginEmail").value;
-        const password = document.getElementById("loginPassword").value;
-        fetch("http://localhost:5000/api/felhasznalok/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, jelszo_hash: password })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            localStorage.setItem("loggedInUser", JSON.stringify(data.user));
-            const authModalEl = document.getElementById("authModal");
-            const authModal = bootstrap.Modal.getInstance(authModalEl);
-            authModal.hide();
-            alert("Sikeres bejelentkezés!");
-          } else {
-            alert("Hibás email vagy jelszó!");
-          }
-        })
-        .catch(err => {
-          console.error("Bejelentkezési hiba:", err);
-          alert("Hiba történt a bejelentkezéskor.");
-        });
-      });
-
-      // Regisztrációs űrlap kezelése
-      const registerForm = document.getElementById("registerForm");
-      registerForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-        const vezeteknev = document.getElementById("registerLastName").value;
-        const keresztnev = document.getElementById("registerFirstName").value;
-        const felhasznalonev = document.getElementById("registerUsername").value;
-        const email = document.getElementById("registerEmail").value;
-        const password = document.getElementById("registerPassword").value;
-        fetch("http://localhost:5000/api/felhasznalok", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vezeteknev, keresztnev, felhasznalonev, email, jelszo_hash: password })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            alert("Sikeres regisztráció! Most már bejelentkezhetsz.");
-            registerSection.style.display = "none";
-            loginSection.style.display = "block";
-            authModalLabel.textContent = "Bejelentkezés";
-          } else {
-            alert("Hiba történt a regisztrációkor: " + data.error);
-          }
-        })
-        .catch(err => {
-          console.error("Regisztrációs hiba:", err);
-          alert("Hiba történt a regisztrációkor.");
-        });
-      });
-
-      // Edit Profile form kezelése
-      const editProfileForm = document.getElementById("editProfileForm");
-      editProfileForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-        const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser"));
-        const userId = loggedInUser.felhasznalo_id;
-        const vezeteknev = document.getElementById("editVezeteknev").value;
-        const keresztnev = document.getElementById("editKeresztnev").value;
-        const felhasznalonev = document.getElementById("editFelhasznalonev").value;
-        const email = document.getElementById("editEmail").value;
-        fetch(`http://localhost:5000/api/felhasznalok/${userId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ vezeteknev, keresztnev, felhasznalonev, email })
-        })
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            alert("Profil frissítve!");
-            loggedInUser.vezeteknev = vezeteknev;
-            loggedInUser.keresztnev = keresztnev;
-            loggedInUser.felhasznalonev = felhasznalonev;
-            loggedInUser.email = email;
-            localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser));
-            editProfileSection.style.display = "none";
-            profileSection.style.display = "block";
-            authModalLabel.textContent = "Profil";
-            document.getElementById("profileUsername").textContent = felhasznalonev;
-          } else {
-            alert("Profil frissítési hiba: " + data.error);
-          }
-        })
-        .catch(err => {
-          console.error("Profil frissítési hiba:", err);
-          alert("Hiba történt a profil frissítésekor.");
-        });
-      });
-    });
-  </script>
 </body>
 </html>
