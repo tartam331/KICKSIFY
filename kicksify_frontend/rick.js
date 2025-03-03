@@ -1,16 +1,45 @@
-let allNikeShoes = []; // Adidas cipők tömbje
+let allNikeShoes = []; 
 
-document.addEventListener("DOMContentLoaded", function() {
-  fetch("http://localhost:5000/api/cipok?marka=Rick Owens")
+document.addEventListener("DOMContentLoaded", function() { 
+  fetch("http://localhost:5000/api/cipok?marka=Rick Owens") 
     .then(response => {
       if (!response.ok) {
         throw new Error("HTTP error: " + response.status);
       }
-      return response.json();
+      return response.json();  
     })
-    .then(data => {
-      allNikeShoes = data; // Mentés a megfelelő változóba
-      console.log("✅ Betöltött Adidas cipők:", allNikeShoes); // Debug
+
+      .then(data => {
+      allNikeShoes = data; 
+      console.log("✅ Betöltött Adidas cipők:", allNikeShoes); 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
       renderShoes(allNikeShoes); // Kirajzolás
     })

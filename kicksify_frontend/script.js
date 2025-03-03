@@ -143,13 +143,19 @@ document.addEventListener("DOMContentLoaded", () => {
       cartModal.classList.remove("active");
   });
 
+
+
+
+
+
   // Kosár ürítése
-  clearCartBtn.addEventListener("click", () => {
-      fetch(`http://localhost:5000/api/kosar/clear/${felhasznalo_id}`, {
+  clearCartBtn.addEventListener("click", () => {    
+      fetch(`http://localhost:5000/api/kosar/clear/${felhasznalo_id}`, {  
           method: "DELETE"
       })
-          .then(response => response.json())
-          .then(() => {
+          .then(response => response.json()) 
+
+          .then(() => {  
               cartItemsContainer.innerHTML = "<p>A kosár üres.</p>";
           });
   });

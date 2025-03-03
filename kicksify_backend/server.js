@@ -10,14 +10,27 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+
+
+
+
+
+
 // Adatbázis kapcsolat beállítása
 const db = mysql.createConnection({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASS || "",
   database: process.env.DB_NAME || "kicksify",
-  port: process.env.DB_PORT || 3307
+  port: process.env.DB_PORT || 3306
 });
+
+
+
+
+
+
+
 
 // Adatbázis kapcsolódás kezelése
 db.connect(err => {
@@ -27,6 +40,13 @@ db.connect(err => {
   }
   console.log("✅ Connected to MySQL Database");
 });
+
+
+
+
+
+
+
 
 // Cipők képeinek kiszolgálása (images mappa) – statikus
 app.use("/images", express.static(path.join(__dirname, "images")));
