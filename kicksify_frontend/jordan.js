@@ -1,4 +1,4 @@
-let allJordanShoes = []; // Adidas cipők tömbje
+let allNikeShoes = []; // Adidas cipők tömbje
 
 document.addEventListener("DOMContentLoaded", function() {
   fetch("http://localhost:5000/api/cipok?marka=Jordan")
@@ -9,10 +9,10 @@ document.addEventListener("DOMContentLoaded", function() {
       return response.json();
     })
     .then(data => {
-      allJordanShoes = data; // Mentés a megfelelő változóba
-      console.log("✅ Betöltött Adidas cipők:", allJordanShoes); // Debug
+      allNikeShoes = data; // Mentés a megfelelő változóba
+      console.log("✅ Betöltött Adidas cipők:", allNikeShoes); // Debug
 
-      renderShoes(allJordanShoes); // Kirajzolás
+      renderShoes(allNikeShoes); // Kirajzolás
     })
     .catch(error => {
       console.error("❌ Hiba a cipők betöltésekor:", error);
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function() {
       allNikeShoes.sort((a, b) => b.ar - a.ar);
     }
 
-    renderShoes(allJordanShoes);
+    renderShoes(allNikeShoes);
   });
 });
 
