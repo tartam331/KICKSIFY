@@ -8,25 +8,61 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body { font-family: Arial, sans-serif; }
-    .navbar { background-color: rgba(0, 0, 0, 0.8); padding: 10px 20px; position: fixed; top: 0; width: 100%; z-index: 1000; display: flex; justify-content: space-between; align-items: center; }
-    .navbar .navbar-brand { font-size: 1.5rem; color: white; font-weight: bold; text-transform: uppercase; }
-    .navbar .navbar-icons { display: flex; gap: 15px; color: white; }
-    .navbar .navbar-icons i { cursor: pointer; }
-    main.container { padding-top: 80px; }
-    footer { background-color: #333; color: white; padding: 10px 0; text-align: center; margin-top: 50px; }
-    .product-name { font-size: 2rem; font-weight: bold; text-transform: uppercase; }
-    .product-price { font-size: 1.5rem; font-weight: bold; color: #333; }
+    .navbar { 
+      background-color: rgba(0, 0, 0, 0.8); 
+      padding: 10px 20px; 
+      position: fixed; 
+      top: 0; 
+      width: 100%; 
+      z-index: 1000; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+    }
+    .navbar .navbar-brand { 
+      font-size: 1.5rem; 
+      color: white; 
+      font-weight: bold; 
+      text-transform: uppercase; 
+    }
+    .navbar .navbar-icons { 
+      display: flex; 
+      gap: 15px; 
+      color: white; 
+    }
+    .navbar .navbar-icons i { 
+      cursor: pointer; 
+    }
+    main.container { 
+      padding-top: 80px; 
+    }
+    footer { 
+      background-color: #333; 
+      color: white; 
+      padding: 10px 0; 
+      text-align: center; 
+      margin-top: 50px; 
+    }
+    .product-name { 
+      font-size: 2rem; 
+      font-weight: bold; 
+      text-transform: uppercase; 
+    }
+    .product-price { 
+      font-size: 1.5rem; 
+      font-weight: bold; 
+      color: #333; 
+    }
 
-    /* Méretválasztó vonallal és elrendezéssel */
+    /* Méretválasztó, elrendezés */
     .size-container {
       border-top: 2px solid #ddd;
       padding-top: 15px;
       margin-top: 15px;
     }
-
-    /* Nagyobb méretválasztó gombok, egymás alá törve */
     .size-option { 
       padding: 15px; 
       border: 2px solid black; 
@@ -50,7 +86,7 @@
       gap: 10px;
     }
 
-    /* Mennyiségválasztó, pontos kinézet */
+    /* Mennyiségválasztó */
     .quantity-container {
       display: flex;
       align-items: center;
@@ -83,8 +119,15 @@
     }
 
     /* Képgaléria */
-    .gallery img { width: 100%; border-radius: 5px; margin-bottom: 10px; }
-    .gallery { display: flex; gap: 10px; }
+    .gallery img { 
+      width: 100%; 
+      border-radius: 5px; 
+      margin-bottom: 10px; 
+    }
+    .gallery { 
+      display: flex; 
+      gap: 10px; 
+    }
     .gallery img.small { 
       width: 80px; 
       cursor: pointer; 
@@ -92,8 +135,10 @@
       padding: 2px;
       background: white;
     }
-    .gallery img.small:hover { border: 2px solid black; background: black; }
-    
+    .gallery img.small:hover { 
+      border: 2px solid black; 
+      background: black; 
+    }
   </style>
 </head>
 <body>
@@ -108,10 +153,19 @@
 
   <main class="container">
     <div class="row">
+      <!-- Bal oldali oszlop: képek, galéria, GRAFIKON ALÁ MOZGATVA -->
       <div class="col-md-6 text-center">
         <img id="main-image" src="no-image.png" alt="Termék képe" class="img-fluid" />
         <div class="gallery mt-3" id="image-gallery"></div>
+
+        <!-- Itt helyezzük el a grafikon dobozt a képek alatt -->
+        <div id="price-history-container" class="mt-4">
+          <h3>Ár történelem</h3>
+          <canvas id="priceChart"></canvas>
+        </div>
       </div>
+
+      <!-- Jobb oldali oszlop: termék részletek, méretek, mennyiség, gomb -->
       <div class="col-md-6">
         <p id="product-brand"></p>
         <h2 class="product-name" id="product-name"></h2>
@@ -138,71 +192,7 @@
     &copy; 2025 Kicksify. All rights reserved.
   </footer>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", async function () {
-      const urlParams = new URLSearchParams(window.location.search);
-      const cipoId = urlParams.get("id");
-
-      if (!cipoId) {
-        alert("Hiba: Nem található termék az azonosító alapján.");
-        return;
-      }
-
-      try {
-        const resCipo = await fetch(`/api/cipok/${cipoId}`);
-        const dataCipo = await resCipo.json();
-
-        if (dataCipo.error) {
-          console.error("Hiba:", dataCipo.error);
-          return;
-        }
-
-        // Fő kép és galéria betöltése
-        document.getElementById("main-image").src = `http://localhost:5000/cipok/${dataCipo.kep.split(',')[0]}`;
-        const gallery = document.getElementById("image-gallery");
-        gallery.innerHTML = "";
-        dataCipo.kep.split(',').forEach(img => {
-          const imgElem = document.createElement("img");
-          imgElem.src = `http://localhost:5000/cipok/${img.trim()}`;
-          imgElem.className = "small";
-          imgElem.onclick = () => {
-            document.getElementById("main-image").src = imgElem.src;
-          };
-          gallery.appendChild(imgElem);
-        });
-
-        document.getElementById("product-brand").textContent = dataCipo.marka;
-        document.getElementById("product-name").textContent = dataCipo.modell;
-        document.getElementById("product-price").textContent = `${Number(dataCipo.ar).toLocaleString("hu-HU")} Ft`;
-
-        const resMeretek = await fetch(`/api/cipok/${cipoId}/meretek`);
-        const dataMeretek = await resMeretek.json();
-        const sizeContainer = document.getElementById("size-options");
-        sizeContainer.innerHTML = "";
-
-        dataMeretek.forEach(size => {
-          const sizeBtn = document.createElement("button");
-          sizeBtn.className = "size-option";
-          sizeBtn.textContent = size.meret;
-          sizeBtn.onclick = () => {
-            document.querySelectorAll(".size-option").forEach(btn => btn.classList.remove("active"));
-            sizeBtn.classList.add("active");
-            document.getElementById("selected-size").textContent = size.meret;
-          };
-          sizeContainer.appendChild(sizeBtn);
-        });
-
-      } catch (err) {
-        console.error("Hiba a termék/méretek betöltésekor:", err);
-      }
-    });
-
-    function updateQuantity(change) {
-      const quantityInput = document.getElementById("quantity");
-      let newValue = parseInt(quantityInput.value) + change;
-      if (newValue < 1) newValue = 1;
-      quantityInput.value = newValue;
-    }
-  </script>
+  <!-- A product.js fájl (külön) tartalmazza a működést -->
+  <script src="product.js"></script>
 </body>
 </html>

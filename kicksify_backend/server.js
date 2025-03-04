@@ -10,27 +10,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-
-
-
-
-
-
 // Adatbázis kapcsolat beállítása
 const db = mysql.createConnection({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASS || "",
   database: process.env.DB_NAME || "kicksify",
-  port: process.env.DB_PORT || 3306
+  port: process.env.DB_PORT || 3307
 });
-
-
-
-
-
-
-
 
 // Adatbázis kapcsolódás kezelése
 db.connect(err => {
@@ -40,13 +27,6 @@ db.connect(err => {
   }
   console.log("✅ Connected to MySQL Database");
 });
-
-
-
-
-
-
-
 
 // Cipők képeinek kiszolgálása (images mappa) – statikus
 app.use("/images", express.static(path.join(__dirname, "images")));
@@ -69,14 +49,8 @@ app.get("/api/cipok", (req, res) => {
       return res.status(500).json({ error: "Hiba az adatbázis lekérdezésekor" });
     }
 
-    // Képek URL-jének hozzáadása és méretek feldolgozása
-    const updatedResults = results.map(cipo => ({
-      ...cipo,
-      image: `http://localhost:${PORT}/images/${cipo.kep}`,
-      meretek: cipo.meretek ? cipo.meretek.split(',').map(Number) : []
-    }));
-
-    res.json(updatedResults);
+    // Visszaadjuk az összes cipőt (a front-end jelenleg a képfájl(oka)t is magából a 'kep' mezőből kezeli, vesszővel elválasztva)
+    res.json(results);
   });
 });
 
@@ -99,17 +73,27 @@ app.get("/api/cipok/:id", (req, res) => {
       return res.status(404).json({ error: "Nincs ilyen termék" });
     }
 
-    const cipo = {
-      ...results[0],
-      image: `http://localhost:${PORT}/images/${results[0].kep}`,
-      meretek: results[0].meretek ? results[0].meretek.split(',').map(Number) : []
-    };
-
-    res.json(cipo);
+    // Itt is a 'kep' mező vesszővel elválasztott string, a front-endből dolgozzuk fel
+    res.json(results[0]);
   });
 });
 
-// Új végpont: Cipő méretek lekérése
+// Új végpont: adott cipő árváltozásainak lekérése
+app.get("/api/cipok/:id/arvaltozas", (req, res) => {
+  const cipoId = req.params.id;
+  // Feltételezzük, hogy van egy 'arvaltozas' tábla: (id, cipo_id, datum, ar)
+  // Ez tárolja az árakat és a változások dátumát
+  const query = "SELECT datum, ar FROM arvaltozas WHERE cipo_id = ? ORDER BY datum ASC";
+  db.query(query, [cipoId], (err, results) => {
+    if (err) {
+      console.error("❌ Ár változás lekérdezési hiba:", err);
+      return res.status(500).json({ error: "Hiba az ár történet lekérdezésekor" });
+    }
+    res.json(results);
+  });
+});
+
+// Új végpont: Cipő méretek lekérése (ha front-end külön használja)
 app.get("/api/cipok/:id/meretek", (req, res) => {
   const cipoId = req.params.id;
   const query = "SELECT meret FROM meretek WHERE cipo_id = ?";
@@ -122,14 +106,17 @@ app.get("/api/cipok/:id/meretek", (req, res) => {
   });
 });
 
+// Kosár funkciók, felhasználók és egyebek
+// --------------------------------------
 // Kosárba adás
 app.post("/api/kosar", (req, res) => {
   const { felhasznalo_id, cipo_id, meret, darabszam, egysegar } = req.body;
   if (!felhasznalo_id || !cipo_id || !meret || !darabszam || !egysegar) {
     return res.status(400).json({ error: "Hiányzó adatok" });
   }
-  const query = "INSERT INTO kosar (felhasznalo_id, cipo_id, meret, darabszam, egysegar) VALUES (?, ?, ?, ?, ?)";
-  db.query(query, [felhasznalo_id, cipo_id, meret, darabszam, egysegar], (err, result) => {
+  const query =
+    "INSERT INTO kosar (felhasznalo_id, cipo_id, meret, darabszam, egysegar) VALUES (?, ?, ?, ?, ?)";
+  db.query(query, [felhasznalo_id, cipo_id, meret, darabszam, egysegar], (err) => {
     if (err) {
       console.error("❌ Kosár hiba:", err);
       return res.status(500).json({ error: "Hiba a kosárba adáskor" });
@@ -142,12 +129,11 @@ app.post("/api/kosar", (req, res) => {
 app.get("/api/kosar/:felhasznalo_id", (req, res) => {
   const felhasznalo_id = req.params.felhasznalo_id;
   const query = `
-    SELECT k.*, c.marka, c.modell, c.kep 
+    SELECT k.*, c.marka, c.modell, c.kep
     FROM kosar k
     JOIN cipok c ON k.cipo_id = c.cipo_id
     WHERE k.felhasznalo_id = ?
   `;
-
   db.query(query, [felhasznalo_id], (err, results) => {
     if (err) {
       console.error("❌ Kosár lekérdezési hiba:", err);
@@ -161,7 +147,7 @@ app.get("/api/kosar/:felhasznalo_id", (req, res) => {
 app.delete("/api/kosar/:id", (req, res) => {
   const kosarId = req.params.id;
   const query = "DELETE FROM kosar WHERE kosar_id = ?";
-  db.query(query, [kosarId], (err, result) => {
+  db.query(query, [kosarId], (err) => {
     if (err) {
       console.error("❌ Hiba a törlés során:", err);
       return res.status(500).json({ error: "Nem sikerült törölni a kosárból" });
@@ -199,7 +185,8 @@ app.post("/api/felhasznalok", (req, res) => {
   if (!vezeteknev || !keresztnev || !felhasznalonev || !email || !jelszo_hash) {
     return res.status(400).json({ error: "Hiányzó adatok" });
   }
-  const sql = "INSERT INTO felhasznalok (vezeteknev, keresztnev, felhasznalonev, email, jelszo_hash) VALUES (?, ?, ?, ?, ?)";
+  const sql =
+    "INSERT INTO felhasznalok (vezeteknev, keresztnev, felhasznalonev, email, jelszo_hash) VALUES (?, ?, ?, ?, ?)";
   db.query(sql, [vezeteknev, keresztnev, felhasznalonev, email, jelszo_hash], (err, result) => {
     if (err) {
       console.error("❌ Regisztrációs hiba:", err);
