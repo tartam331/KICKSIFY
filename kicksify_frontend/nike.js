@@ -1,4 +1,4 @@
-let allNikeShoes = []; // Adidas cipők tömbje
+let allNikeShoes = []; 
 
 document.addEventListener("DOMContentLoaded", function() {
   fetch("http://localhost:5000/api/cipok?marka=Nike")
@@ -8,11 +8,12 @@ document.addEventListener("DOMContentLoaded", function() {
       }
       return response.json();
     })
-    .then(data => {
-      allNikeShoes = data; // Mentés a megfelelő változóba
-      console.log("✅ Betöltött Adidas cipők:", allNikeShoes); // Debug
 
-      renderShoes(allNikeShoes); // Kirajzolás
+    .then(data => {
+      allNikeShoes = data; 
+      console.log("✅ Betöltött Nike cipők:", allNikeShoes); 
+
+    renderShoes(allNikeShoes); 
     })
     .catch(error => {
       console.error("❌ Hiba a cipők betöltésekor:", error);

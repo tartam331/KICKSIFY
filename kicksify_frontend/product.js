@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   }
 
   try {
-    // 1) Cipő adatok lekérése
+    // Cipő adatok lekérése
     const resCipo = await fetch(`/api/cipok/${cipoId}`);
     const dataCipo = await resCipo.json();
 
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       return;
     }
 
-    // -- Fő kép és galéria --
+    // Fő kép és galéria
     const mainImage = document.getElementById("main-image");
     const gallery = document.getElementById("image-gallery");
     mainImage.src = "no-image.png";
@@ -25,10 +25,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     if (dataCipo.kep) {
       const kepek = dataCipo.kep.split(",");
-      // Első kép
+      // Első kép megjelenítése
       mainImage.src = `http://localhost:5000/cipok/${kepek[0].trim()}`;
 
-      // További képek a galériában
+      // További képek betöltése a galériába
       kepek.forEach(img => {
         const imgElem = document.createElement("img");
         imgElem.src = `http://localhost:5000/cipok/${img.trim()}`;
@@ -40,13 +40,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       });
     }
 
-    // -- Márka, modell, ár kiírása --
+    // Márka, modell, ár kiírása
     document.getElementById("product-brand").textContent = dataCipo.marka;
     document.getElementById("product-name").textContent = dataCipo.modell;
     document.getElementById("product-price").textContent =
       `${Number(dataCipo.ar).toLocaleString("hu-HU")} Ft`;
 
-    // -- Méretek betöltése (ha külön végpont) --
+    // Méretek betöltése
     const resMeretek = await fetch(`/api/cipok/${cipoId}/meretek`);
     const dataMeretek = await resMeretek.json();
     const sizeContainer = document.getElementById("size-options");
@@ -64,21 +64,8 @@ document.addEventListener("DOMContentLoaded", async function () {
       sizeContainer.appendChild(sizeBtn);
     });
 
-    // -- Létrehozzuk / mozgatjuk a grafikon dobozát a képgaléria ALÁ --
-    let priceHistoryContainer = document.getElementById("price-history-container");
-    if (!priceHistoryContainer) {
-      priceHistoryContainer = document.createElement("div");
-      priceHistoryContainer.id = "price-history-container";
-      priceHistoryContainer.innerHTML = `
-        <h3>Ár történelem</h3>
-        <canvas id="priceChart"></canvas>
-      `;
-    }
-    // Beszúrjuk közvetlenül a galéria után
-    gallery.parentNode.insertBefore(priceHistoryContainer, gallery.nextSibling);
-
-    // 2) Grafikon betöltése
-    loadPriceChart(cipoId);
+    // Grafikon és ár történelem táblázat betöltése
+    loadPriceHistory(cipoId);
 
   } catch (err) {
     console.error("Hiba a termék/méretek betöltésekor:", err);
@@ -94,9 +81,9 @@ function updateQuantity(change) {
 }
 
 /** 
- * Árgrafikon betöltése (Y-tengely min = legkisebb ár, max = legnagyobb ár)
+ * Ár történelem: diagram és táblázat megjelenítése
  */
-async function loadPriceChart(cipoId) {
+async function loadPriceHistory(cipoId) {
   try {
     const res = await fetch(`/api/cipok/${cipoId}/arvaltozas`);
     const priceData = await res.json();
@@ -107,26 +94,21 @@ async function loadPriceChart(cipoId) {
       return;
     }
 
-    const labels = priceData.map(e =>
-      new Date(e.datum).toLocaleDateString("hu-HU")
-    );
+    // Adatok előkészítése
+    const labels = priceData.map(e => new Date(e.datum).toLocaleDateString("hu-HU"));
     const prices = priceData.map(e => e.ar);
-
-    // Legkisebb és legnagyobb ár
     let minPrice = Math.min(...prices);
     let maxPrice = Math.max(...prices);
-
-    // Ha minden ár ugyanaz, toljuk fel a max-ot
     if (minPrice === maxPrice) {
       maxPrice = minPrice + 1;
     }
 
-    // Chart.js létrehozása
+    // Diagram létrehozása Chart.js segítségével
     const ctx = document.getElementById("priceChart").getContext("2d");
     new Chart(ctx, {
       type: "line",
       data: {
-        labels,
+        labels: labels,
         datasets: [{
           label: "Árváltozás",
           data: prices,
@@ -147,7 +129,45 @@ async function loadPriceChart(cipoId) {
         }
       }
     });
+
+    // HTML táblázat létrehozása
+    const table = document.createElement("table");
+    table.className = "table table-striped mt-3";
+    const thead = document.createElement("thead");
+    const headerRow = document.createElement("tr");
+    const dateHeader = document.createElement("th");
+    dateHeader.textContent = "Dátum";
+    const priceHeader = document.createElement("th");
+    priceHeader.textContent = "Ár (Ft)";
+    headerRow.appendChild(dateHeader);
+    headerRow.appendChild(priceHeader);
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    priceData.forEach(entry => {
+      const row = document.createElement("tr");
+      const dateCell = document.createElement("td");
+      dateCell.textContent = new Date(entry.datum).toLocaleDateString("hu-HU");
+      const priceCell = document.createElement("td");
+      priceCell.textContent = Number(entry.ar).toLocaleString("hu-HU") + " Ft";
+      row.appendChild(dateCell);
+      row.appendChild(priceCell);
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+
+    // Táblázat beszúrása a konténerbe
+    let tableContainer = document.getElementById("priceTableContainer");
+    if (!tableContainer) {
+      tableContainer = document.createElement("div");
+      tableContainer.id = "priceTableContainer";
+      document.getElementById("price-history-container").appendChild(tableContainer);
+    }
+    tableContainer.innerHTML = "";
+    tableContainer.appendChild(table);
+
   } catch (err) {
-    console.error("❌ Hiba az árgrafikon betöltésekor:", err);
+    console.error("Hiba az ár történelem betöltésekor:", err);
   }
 }

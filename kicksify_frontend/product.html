@@ -56,7 +56,6 @@
       font-weight: bold; 
       color: #333; 
     }
-
     /* Méretválasztó, elrendezés */
     .size-container {
       border-top: 2px solid #ddd;
@@ -85,7 +84,6 @@
       flex-wrap: wrap;
       gap: 10px;
     }
-
     /* Mennyiségválasztó */
     .quantity-container {
       display: flex;
@@ -117,7 +115,6 @@
       border: none;
       background: none;
     }
-
     /* Képgaléria */
     .gallery img { 
       width: 100%; 
@@ -139,6 +136,16 @@
       border: 2px solid black; 
       background: black; 
     }
+    /* Fixált grafikon és táblázat konténer */
+    #price-history-container {
+      position: relative;
+      height: 300px; /* Fix magasság a diagramhoz */
+      margin-top: 20px;
+      overflow-y: auto;
+    }
+    #priceChart {
+      height: 100% !important;
+    }
   </style>
 </head>
 <body>
@@ -153,15 +160,16 @@
 
   <main class="container">
     <div class="row">
-      <!-- Bal oldali oszlop: képek, galéria, GRAFIKON ALÁ MOZGATVA -->
+      <!-- Bal oldali oszlop: képek, galéria, grafikon és táblázat a képek alatt -->
       <div class="col-md-6 text-center">
         <img id="main-image" src="no-image.png" alt="Termék képe" class="img-fluid" />
         <div class="gallery mt-3" id="image-gallery"></div>
 
-        <!-- Itt helyezzük el a grafikon dobozt a képek alatt -->
-        <div id="price-history-container" class="mt-4">
+        <!-- Fixált ár történet doboz: grafikon és alatta a táblázat -->
+        <div id="price-history-container">
           <h3>Ár történelem</h3>
           <canvas id="priceChart"></canvas>
+          <div id="priceTableContainer"></div>
         </div>
       </div>
 
@@ -192,7 +200,7 @@
     &copy; 2025 Kicksify. All rights reserved.
   </footer>
 
-  <!-- A product.js fájl (külön) tartalmazza a működést -->
+  <!-- A product.js fájl tartalmazza a működést -->
   <script src="product.js"></script>
 </body>
 </html>
