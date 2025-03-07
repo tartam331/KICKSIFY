@@ -1,31 +1,22 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kicksify</title>
   
-  <!-- FontAwesome és Bootstrap -->
-  <link
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    rel="stylesheet"
-  />
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-  />
-
-  <!-- Eredeti style.css helye, ha szükséges 
-  <link rel="stylesheet" href="style.css">
-  -->
-
+  <!-- FontAwesome és Bootstrap CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  
   <style>
-    /* Alap stílusok */
+    /* Alapbeállítások */
     body {
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
     }
+    /* NAVBAR */
     .navbar {
       background-color: rgba(0,0,0,0.8);
       padding: 10px 20px;
@@ -45,7 +36,7 @@
       left: 50%;
       transform: translateX(-50%);
     }
-    .navbar .menu-toggle {
+    .menu-toggle {
       font-size: 1.5rem;
       color: white;
       border: none;
@@ -56,98 +47,102 @@
       display: flex;
       align-items: center;
       gap: 15px;
+    }
+    .navbar-icons .currency-text,
+    .navbar-icons .language-text {
       color: white;
+      font-size: 1rem;
     }
     .navbar-icons i {
+      color: white;
       cursor: pointer;
+      font-size: 1.2rem;
     }
-
-    /* Hero Section */
-    .hero-section {
-      background: url('images/hatter.png') no-repeat center center/cover;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      text-align: center;
-    }
-    .hero-content a {
-      display: inline-block;
-      background-color: white;
-      color: black;
-      font-size: 1.5rem;
-      padding: 15px 30px;
-      border-radius: 12px;
-      font-weight: bold;
-      text-decoration: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      transition: background-color 0.3s ease, transform 0.3s ease;
-    }
-    .hero-content a:hover {
-      background-color: #e6e6e6;
-      transform: translateY(-5px);
-    }
-
-    /* Legnépszerűbb termékek, stb. */
-    .popular-products,
-    .customer-reviews,
-    .partners,
-    .newsletter {
-      padding: 60px 0;
-    }
-    footer.footer {
-      background-color: #222;
-      color: white;
+    
+    /* BAL OLDALI PANEL (Márkák & Kollekciók) */
+    .left-panel {
+      position: fixed;
+      top: 0;
+      left: -400px; /* Induláskor rejtve */
+      width: 400px;
+      height: 100%;
+      background-color: #fff;
+      box-shadow: 5px 0 15px rgba(0,0,0,0.3);
       padding: 20px;
-      text-align: center;
-      margin-top: 0;
+      transition: left 0.3s ease-in-out;
+      z-index: 1500;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
-
-    /* Modal (fekete-fehér) */
-    .modal-content {
+    .left-panel.active {
+      left: 0;
+    }
+    .left-panel-header {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .left-panel-close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #000;
+    }
+    .left-panel-content {
+      margin-top: 60px;
+    }
+    .left-panel-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .left-panel-list,
+    .left-panel-collections ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .left-panel-list li,
+    .left-panel-collections li {
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+    .left-panel-list li a,
+    .left-panel-collections li a {
+      text-decoration: none;
+      color: #000;
+    }
+    .left-panel-list li a:hover,
+    .left-panel-collections li a:hover {
+      color: #111;
+    }
+    .left-panel-collections {
+      margin-top: 30px;
+    }
+    .left-panel-collections h3 {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+    }
+    .left-panel-bottom {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .left-panel-bottom button {
       background-color: #000;
       color: #fff;
-    }
-    .modal-header .modal-title {
-      font-weight: bold;
-      letter-spacing: 0.5px;
-    }
-    .btn-close.btn-close-white {
-      filter: invert(1);
-    }
-    .form-label {
-      color: #fff;
-    }
-    .form-control {
-      background-color: #333;
-      color: #fff;
-      border: 1px solid #555;
-    }
-    .form-control:focus {
-      background-color: #444;
-      color: #fff;
-    }
-    .btn-primary {
-      background-color: #fff;
-      color: #000;
       border: none;
-    }
-    .btn-primary:hover {
-      background-color: #ddd;
-      color: #000;
-    }
-    .toggle-link {
-      color: #fff;
-      text-decoration: underline;
+      padding: 10px 20px;
+      font-size: 1.2rem;
       cursor: pointer;
+      border-radius: 5px;
     }
-    /* Modal rejtett részei */
-    #registerSection, #profileSection, #editProfileSection {
-      display: none;
+    .left-panel-bottom button:hover {
+      background-color: #333;
     }
-
-    /* Keresőpanel (jobbról csúszó) */
+    
+    /* KERESŐPANEL (jobbról csúszó) */
     .side-search {
       position: fixed;
       top: 0;
@@ -155,7 +150,7 @@
       width: 30%;
       height: 100%;
       background-color: white;
-      box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+      box-shadow: -5px 0 15px rgba(0,0,0,0.2);
       padding: 30px;
       transition: right 0.3s ease-in-out;
       z-index: 2000;
@@ -204,63 +199,95 @@
     .search-overlay.active {
       display: block;
     }
-
-    /* Bal oldali panel: CIPŐK (left:0, ne maradjon rés) */
-    .left-panel {
-      position: fixed;
-      top: 0;
-      left: -400px; /* 400px szélesség, induláskor rejtve */
-      width: 400px;
-      height: 100%;
-      background-color: #fff;
-      box-shadow: 5px 0 15px rgba(0,0,0,0.3);
-      padding: 20px;
-      transition: left 0.3s ease-in-out;
-      z-index: 1500;
+    
+    /* HERO SECTION – gomb bal lent */
+    .hero-section {
+      position: relative;
+      background: url('images/hatter.png') no-repeat center center/cover;
+      height: 100vh;
     }
-    .left-panel.active {
-      left: 0;
-    }
-    .left-panel-close-btn {
+    .hero-content {
       position: absolute;
-      top: 15px;
-      left: 15px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: #000;
-      color: #fff;
-      font-size: 1.3rem;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      bottom: 40px;
+      left: 40px;
     }
-    .left-panel-title {
-      margin-top: 70px;
-      margin-bottom: 30px;
-      font-size: 2rem;
+    .hero-content a {
+      display: inline-block;
+      background-color: white;
+      color: black;
+      font-size: 1.5rem;
+      padding: 15px 30px;
+      border-radius: 12px;
       font-weight: bold;
-    }
-    .left-panel-list {
-      list-style: none;
-      padding: 0;
-    }
-    .left-panel-list li {
-      margin-bottom: 20px;
-      font-size: 1.3rem;
-      font-weight: bold;
-    }
-    .left-panel-list li a {
       text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .hero-content a:hover {
+      background-color: #e6e6e6;
+      transform: translateY(-5px);
+    }
+    
+    /* EGYÉB RÉSZEK: popular-products, reviews, partners, newsletter, footer */
+    .popular-products,
+    .customer-reviews,
+    .partners,
+    .newsletter {
+      padding: 60px 0;
+    }
+    footer.footer {
+      background-color: #222;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      margin-top: 0;
+    }
+    
+    /* AUTH MODAL */
+    .modal-content {
+      background-color: #000;
+      color: #fff;
+    }
+    .modal-header .modal-title {
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    .btn-close.btn-close-white {
+      filter: invert(1);
+    }
+    .form-label {
+      color: #fff;
+    }
+    .form-control {
+      background-color: #333;
+      color: #fff;
+      border: 1px solid #555;
+    }
+    .form-control:focus {
+      background-color: #444;
+      color: #fff;
+    }
+    .btn-primary {
+      background-color: #fff;
+      color: #000;
+      border: none;
+    }
+    .btn-primary:hover {
+      background-color: #ddd;
       color: #000;
     }
-    .left-panel-list li a:hover {
-      color: #111;
+    .toggle-link {
+      color: #fff;
+      text-decoration: underline;
+      cursor: pointer;
     }
-
-    /* Kosárpanel */
+    #registerSection,
+    #profileSection,
+    #editProfileSection {
+      display: none;
+    }
+    
+    /* KOSÁRPANEL */
     .cart-modal {
       position: fixed;
       top: 0;
@@ -268,7 +295,7 @@
       width: 400px;
       height: 100%;
       background: white;
-      box-shadow: -4px 0 12px rgba(0, 0, 0, 0.3);
+      box-shadow: -4px 0 12px rgba(0,0,0,0.3);
       padding: 20px;
       overflow-y: auto;
       z-index: 1001;
@@ -297,6 +324,7 @@
       border: none;
       padding: 10px 20px;
       cursor: pointer;
+      margin-top: 10px;
     }
     #paymentBtn {
       background-color: green;
@@ -304,54 +332,52 @@
       border: none;
       padding: 10px 20px;
       cursor: pointer;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-
   <!-- NAVBAR -->
   <header class="navbar">
-    <!-- Burger menü: bal felső -->
     <button class="menu-toggle" id="openLeftPanel"><i class="fas fa-bars"></i></button>
     <h1 class="navbar-brand">Kicksify</h1>
     <div class="navbar-icons">
-      <div class="dropdown">
-        <button class="btn btn-light dropdown-toggle" type="button" id="currencyDropdown" data-bs-toggle="dropdown">
-          HUF Ft
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">EUR €</a></li>
-        </ul>
-      </div>
-      <div class="dropdown">
-        <button class="btn btn-light dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown">
-          Magyar
-        </button>
-        <ul class="dropdown-menu">
-          <li><a class="dropdown-item" href="#">English</a></li>
-        </ul>
-      </div>
-      <!-- Kereső ikon -->
+      <span class="currency-text">HUF Ft</span>
+      <span class="language-text">Magyar</span>
       <i class="fas fa-search" id="openSearch"></i>
       <div id="searchOverlay" class="search-overlay"></div>
-      <!-- Felhasználó és kosár ikonok -->
       <i class="fas fa-user" id="openAuthModal"></i>
       <i class="fas fa-shopping-cart" id="openCart"></i>
     </div>
   </header>
 
-  <!-- BAL OLDALI PANEL (CIPŐK) -->
+  <!-- BAL OLDALI PANEL (CIPŐK & KOLLEKCIÓK) -->
   <div id="leftPanel" class="left-panel">
-    <button class="left-panel-close-btn" id="closeLeftPanel">×</button>
-    <div class="left-panel-title">CIPŐK</div>
-    <ul class="left-panel-list">
-      <li><a href="#">Nike</a></li>
-      <li><a href="#">Jordan</a></li>
-      <li><a href="#">Adidas</a></li>
-      <li><a href="#">Maison Margiela</a></li>
-      <li><a href="#">Rick Owens</a></li>
-      <li><a href="#">Balenciaga</a></li>
-    </ul>
+    <div class="left-panel-header">
+      <button class="left-panel-close-btn" id="closeLeftPanel">×</button>
+    </div>
+    <div class="left-panel-content">
+      <div class="left-panel-title">CIPŐK</div>
+      <ul class="left-panel-list">
+        <li><a href="nike.html">Nike</a></li>
+        <li><a href="jordan.html">Jordan</a></li>
+        <li><a href="adidas.html">Adidas</a></li>
+        <li><a href="maison.html">Maison Margiela</a></li>
+        <li><a href="rick.html">Rick Owens</a></li>
+        <li><a href="balenciaga.html">Balenciaga</a></li>
+      </ul>
+      <div class="left-panel-collections">
+        <h3>Kollekciók</h3>
+        <ul>
+          <li><a href="#">Aktuális Kollekció</a></li>
+          <li><a href="#">Akciós Kollekció</a></li>
+          <li><a href="#">Újdonságok</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="left-panel-bottom">
+      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
+    </div>
   </div>
 
   <!-- KERESŐPANEL (jobbról csúszó) -->
@@ -363,10 +389,10 @@
     <div id="sideSearchResults" class="search-results"></div>
   </div>
 
-  <!-- Hero Section -->
+  <!-- HERO SECTION (gomb bal lent) -->
   <section class="hero-section">
     <div class="hero-content">
-      <a href="cipok.html">Tovább a kollekcióhoz</a>
+      <a href="cipok.html">Exkluzív cipők</a>
     </div>
   </section>
 
@@ -415,7 +441,7 @@
     </div>
   </section>
 
-  <!-- VÁSÁRLÓI VÉLEMÉNYEK -->
+  <!-- Vásárlói Vélemények -->
   <section class="customer-reviews py-5">
     <div class="container text-center">
       <h2 class="mb-4">Vásárlói Vélemények</h2>
@@ -445,7 +471,7 @@
     </div>
   </section>
 
-  <!-- PARTNEREINK -->
+  <!-- Partnereink -->
   <section class="partners py-5 bg-light">
     <div class="container text-center">
       <h2 class="mb-4">Partnereink</h2>
@@ -458,7 +484,7 @@
     </div>
   </section>
 
-  <!-- HÍRLEVÉL FELIRATKOZÁS -->
+  <!-- Hírlevél feliratkozás -->
   <section class="newsletter py-5 bg-dark text-white">
     <div class="container text-center">
       <h2 class="mb-4">Iratkozz fel hírlevelünkre</h2>
@@ -533,7 +559,7 @@
               Még nincs fiókod? <span class="toggle-link" id="showRegister">Regisztráció</span>
             </p>
           </div>
-          <!-- Regisztráció szekció -->
+          <!-- Regisztrációs rész -->
           <div id="registerSection">
             <form id="registerForm">
               <div class="mb-3">
@@ -567,7 +593,7 @@
     </div>
   </div>
 
-  <!-- KOSÁR PANEL -->
+  <!-- KOSÁRPANEL -->
   <div id="cartModal" class="cart-modal">
     <div class="cart-content">
       <button class="cart-close-btn" aria-label="Bezárás">&times;</button>
@@ -580,15 +606,13 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Minden logika egy helyen: bejelentkezés, regisztráció, kosár, keresés, panelvezérlés -->
+  <!-- Saját logika -->
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      /* ============= BAL OLDALI PANEL ============= */
+      /* ===== Bal oldali panel (CIPŐK & KOLLEKCIÓK) ===== */
       const openLeftPanelBtn = document.getElementById("openLeftPanel");
       const leftPanel = document.getElementById("leftPanel");
       const closeLeftPanelBtn = document.getElementById("closeLeftPanel");
-      
       openLeftPanelBtn.addEventListener("click", () => {
         leftPanel.classList.add("active");
       });
@@ -596,11 +620,13 @@
         leftPanel.classList.remove("active");
       });
 
-      /* ============= KERESŐPANEL ============= */
+      /* ===== Keresőpanel ===== */
       const openSearchBtn = document.getElementById("openSearch");
       const sideSearch = document.getElementById("sideSearch");
       const closeSideSearch = document.getElementById("closeSideSearch");
       const searchOverlay = document.getElementById("searchOverlay");
+      const searchInput = document.getElementById("sideSearchInput");
+      const searchResults = document.getElementById("sideSearchResults");
 
       openSearchBtn.addEventListener("click", () => {
         sideSearch.classList.add("active");
@@ -615,17 +641,63 @@
         searchOverlay.classList.remove("active");
       });
 
-      /* ============= FELHASZNÁLÓI (AUTH) MODAL ============= */
+      // Keresés: feltételezzük, hogy /api/cipok/search?query=... 
+      // csak azokat adja vissza, amelyek tartalmazzák a keresett kifejezést
+      searchInput.addEventListener("keyup", async () => {
+        const query = searchInput.value.trim();
+        searchResults.innerHTML = "";
+        if (!query) return;
+        try {
+          const res = await fetch(`/api/cipok/search?query=${encodeURIComponent(query)}`);
+          const data = await res.json();
+          if (!data.length) {
+            searchResults.innerHTML = "<p>Nincs találat.</p>";
+            return;
+          }
+          data.forEach(item => {
+            const div = document.createElement("div");
+            div.className = "search-result-item";
+            div.style.display = "flex";
+            div.style.alignItems = "center";
+            div.style.marginBottom = "10px";
+            div.style.cursor = "pointer";
+            const img = document.createElement("img");
+            img.style.width = "50px";
+            img.style.height = "50px";
+            img.style.objectFit = "cover";
+            img.style.marginRight = "10px";
+            if (item.kep) {
+              const kepek = item.kep.split(",");
+              img.src = `/cipok/${kepek[0].trim()}`;
+            } else {
+              img.src = "no-image.png";
+            }
+            const textDiv = document.createElement("div");
+            const nameH6 = document.createElement("h6");
+            nameH6.textContent = `${item.marka} ${item.modell}`;
+            textDiv.appendChild(nameH6);
+            div.appendChild(img);
+            div.appendChild(textDiv);
+            div.addEventListener("click", () => {
+              window.location.href = `product.html?id=${item.cipo_id}`;
+            });
+            searchResults.appendChild(div);
+          });
+        } catch (err) {
+          console.error("Keresési hiba:", err);
+          searchResults.innerHTML = "<p>Hiba történt a keresés során.</p>";
+        }
+      });
+
+      /* ===== AUTH MODAL ===== */
       const userIcon = document.getElementById("openAuthModal");
       const authModalEl = document.getElementById("authModal");
       const authModal = new bootstrap.Modal(authModalEl);
-
       const profileSection = document.getElementById("profileSection");
       const editProfileSection = document.getElementById("editProfileSection");
       const loginSection = document.getElementById("loginSection");
       const registerSection = document.getElementById("registerSection");
       const authModalLabel = document.getElementById("authModalLabel");
-
       const showRegisterLink = document.getElementById("showRegister");
       const showLoginLink = document.getElementById("showLogin");
       const cancelEditElem = document.getElementById("cancelEdit");
@@ -633,7 +705,6 @@
       userIcon.addEventListener("click", function() {
         const loggedInUser = localStorage.getItem("loggedInUser");
         if (loggedInUser) {
-          // Van bejelentkezett user
           const user = JSON.parse(loggedInUser);
           profileSection.style.display = "block";
           loginSection.style.display = "none";
@@ -642,7 +713,6 @@
           authModalLabel.textContent = "Profil";
           document.getElementById("profileUsername").textContent = user.felhasznalonev || "Felhasználó";
         } else {
-          // Nincs bejelentkezve
           loginSection.style.display = "block";
           registerSection.style.display = "none";
           profileSection.style.display = "none";
@@ -651,7 +721,6 @@
         }
         authModal.show();
       });
-
       if (showRegisterLink) {
         showRegisterLink.addEventListener("click", () => {
           loginSection.style.display = "none";
@@ -673,21 +742,18 @@
           authModalLabel.textContent = "Profil";
         });
       }
-
-      /* ============= LOGIN FORM ============= */
+      // Login demo
       const loginForm = document.getElementById("loginForm");
       loginForm.addEventListener("submit", function(e) {
         e.preventDefault();
         const email = document.getElementById("loginEmail").value;
         const password = document.getElementById("loginPassword").value;
-        // Itt valós API-hívás helyett demo logika:
         if (email && password) {
-          // user object
           const user = {
-            felhasznalo_id: 123,
-            vezeteknev: "Demo",
+            felhasznalo_id: 1,
+            vezeteknev: "Teszt",
             keresztnev: "User",
-            felhasznalonev: "demoUser",
+            felhasznalonev: "testUser",
             email: email
           };
           localStorage.setItem("loggedInUser", JSON.stringify(user));
@@ -697,28 +763,25 @@
           alert("Hibás email vagy jelszó!");
         }
       });
-
-      /* ============= REGISZTRÁCIÓS FORM ============= */
+      // Regisztráció demo
       const registerFormElem = document.getElementById("registerForm");
       registerFormElem.addEventListener("submit", function(e) {
         e.preventDefault();
-        const vezeteknev = document.getElementById("registerLastName").value;
-        const keresztnev = document.getElementById("registerFirstName").value;
-        const felhasznalonev = document.getElementById("registerUsername").value;
+        const vnev = document.getElementById("registerLastName").value;
+        const knev = document.getElementById("registerFirstName").value;
+        const uname = document.getElementById("registerUsername").value;
         const email = document.getElementById("registerEmail").value;
-        const password = document.getElementById("registerPassword").value;
-        if (!vezeteknev || !keresztnev || !felhasznalonev || !email || !password) {
+        const pass = document.getElementById("registerPassword").value;
+        if (!vnev || !knev || !uname || !email || !pass) {
           alert("Kérlek, tölts ki minden mezőt!");
           return;
         }
-        // Demo: regisztráció sikeres
         alert("Sikeres regisztráció! Most már bejelentkezhetsz.");
         registerSection.style.display = "none";
         loginSection.style.display = "block";
         authModalLabel.textContent = "Bejelentkezés";
       });
-
-      /* ============= PROFIL SZERKESZTÉSE ============= */
+      // Profil szerkesztése demo
       const editProfileButton = document.getElementById("editProfileButton");
       if (editProfileButton) {
         editProfileButton.addEventListener("click", () => {
@@ -736,7 +799,6 @@
       editProfileForm.addEventListener("submit", function(e) {
         e.preventDefault();
         const loggedInUser = JSON.parse(localStorage.getItem("loggedInUser") || "{}");
-        // Új adatok
         loggedInUser.vezeteknev = document.getElementById("editVezeteknev").value;
         loggedInUser.keresztnev = document.getElementById("editKeresztnev").value;
         loggedInUser.felhasznalonev = document.getElementById("editFelhasznalonev").value;
@@ -748,8 +810,7 @@
         authModalLabel.textContent = "Profil";
         document.getElementById("profileUsername").textContent = loggedInUser.felhasznalonev;
       });
-
-      /* ============= KIJELENTKEZÉS ============= */
+      // Kijelentkezés
       const logoutButton = document.getElementById("logoutButton");
       logoutButton.addEventListener("click", function() {
         localStorage.removeItem("loggedInUser");
@@ -760,36 +821,30 @@
         const authModalBootstrap = bootstrap.Modal.getInstance(authModalEl);
         authModalBootstrap.hide();
       });
-
-      /* ============= KOSÁR PANEL ============= */
+      
+      /* ===== Kosárpanel ===== */
       const openCartBtn = document.getElementById("openCart");
       const cartModal = document.getElementById("cartModal");
       const cartCloseBtn = document.querySelector(".cart-close-btn");
       const clearCartBtn = document.getElementById("clear-cart");
       const paymentBtn = document.getElementById("paymentBtn");
       const cartItemsContainer = document.getElementById("cart-items");
-
-      // Egyszerű példa: kosarat localStorage-ban tárolhatjuk, de most csak egy sima tömb
       let cart = [];
-
+      
       openCartBtn.addEventListener("click", () => {
         cartModal.classList.add("active");
       });
       cartCloseBtn.addEventListener("click", () => {
         cartModal.classList.remove("active");
       });
-
       clearCartBtn.addEventListener("click", () => {
         cart = [];
         renderCart();
         alert("A kosár kiürült.");
       });
-
       paymentBtn.addEventListener("click", () => {
-        // Csak példa:
-        alert("Fizetés. (Valóságban API-hívás és e-mail küldés szükséges.)");
+        alert("Fizetés (demo). Itt valós API-hívás és e-mailküldés történne.");
       });
-
       function renderCart() {
         cartItemsContainer.innerHTML = "";
         if (cart.length === 0) {
@@ -802,10 +857,7 @@
           cartItemsContainer.appendChild(div);
         });
       }
-
-      // DEMÓ: valahol "termék a kosárba" gomb, pl. a legnépszerűbb termékeknél
-      // Itt most fixen hozzáadunk 1 terméket:
-      // (Ha akarsz, tehetsz 'Kosárba' gombot a kártyákba, e.g. 'add to cart' event.)
+      // addToCart(...) demo függvény pl. a product oldalon
     });
   </script>
 </body>
