@@ -160,3 +160,12 @@ document.addEventListener("DOMContentLoaded", () => {
           });
   });
 });
+
+
+const res = await fetch(`/api/cipok/search?query=${encodeURIComponent(query)}`);
+const searchResults = await res.json();
+// Extra filter (opcionális, ha szükséges):
+const filteredResults = searchResults.filter(item =>
+  item.marka.toLowerCase().includes(query.toLowerCase()) ||
+  item.modell.toLowerCase().includes(query.toLowerCase())
+);
