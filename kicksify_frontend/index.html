@@ -374,23 +374,7 @@
       </div>
     </div>
     <div class="left-panel-bottom">
-      <button onclick="window.location.href=''">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href=''">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href=''">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
-      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
+      <!-- Sok gomb - mindegyik ugyanoda vezet? -->
       <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
     </div>
   </div>
@@ -757,13 +741,16 @@
           authModalLabel.textContent = "Profil";
         });
       }
-      // Login demo
+
+      // Bejelentkezés (demo)
       const loginForm = document.getElementById("loginForm");
       loginForm.addEventListener("submit", function(e) {
         e.preventDefault();
         const email = document.getElementById("loginEmail").value;
         const password = document.getElementById("loginPassword").value;
         if (email && password) {
+          // Esetleg valós fetch("http://localhost:5000/api/felhasznalok/login")...
+          // Demo:
           const user = {
             felhasznalo_id: 1,
             vezeteknev: "Teszt",
@@ -778,7 +765,8 @@
           alert("Hibás email vagy jelszó!");
         }
       });
-      // Regisztráció demo
+
+      // Regisztráció – IDE KELL A VALÓS FETCH, hogy bekerüljön az adatbázisba
       const registerFormElem = document.getElementById("registerForm");
       registerFormElem.addEventListener("submit", function(e) {
         e.preventDefault();
@@ -787,15 +775,41 @@
         const uname = document.getElementById("registerUsername").value;
         const email = document.getElementById("registerEmail").value;
         const pass = document.getElementById("registerPassword").value;
+        
         if (!vnev || !knev || !uname || !email || !pass) {
           alert("Kérlek, tölts ki minden mezőt!");
           return;
         }
-        alert("Sikeres regisztráció! Most már bejelentkezhetsz.");
-        registerSection.style.display = "none";
-        loginSection.style.display = "block";
-        authModalLabel.textContent = "Bejelentkezés";
+
+        // Valós API-hívás:
+        fetch("http://localhost:5000/api/felhasznalok", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ 
+            vezeteknev: vnev, 
+            keresztnev: knev, 
+            felhasznalonev: uname, 
+            email: email, 
+            jelszo_hash: pass 
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert("Sikeres regisztráció! Most már bejelentkezhetsz.");
+            registerSection.style.display = "none";
+            loginSection.style.display = "block";
+            authModalLabel.textContent = "Bejelentkezés";
+          } else {
+            alert("Hiba történt a regisztrációkor: " + data.error);
+          }
+        })
+        .catch(err => {
+          console.error("Regisztrációs hiba:", err);
+          alert("Hiba történt a regisztrációkor.");
+        });
       });
+
       // Profil szerkesztése demo
       const editProfileButton = document.getElementById("editProfileButton");
       if (editProfileButton) {
@@ -825,6 +839,7 @@
         authModalLabel.textContent = "Profil";
         document.getElementById("profileUsername").textContent = loggedInUser.felhasznalonev;
       });
+
       // Kijelentkezés
       const logoutButton = document.getElementById("logoutButton");
       logoutButton.addEventListener("click", function() {
