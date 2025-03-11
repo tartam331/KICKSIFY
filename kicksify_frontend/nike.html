@@ -23,6 +23,7 @@
       padding: 0; 
       font-family: Arial, sans-serif;
     }
+
     /* Fixált felső navbar */
     .navbar {
       background-color: rgba(0, 0, 0, 0.8);
@@ -48,6 +49,7 @@
       color: white; 
       border: none; 
       background: none;
+      cursor: pointer;
     }
     .navbar-icons {
       display: flex; 
@@ -113,19 +115,101 @@
       cursor: pointer;
     }
     .shoe-image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 10px;
-  display: block;
-}
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 10px;
+      display: block;
+    }
+
+    /* BAL OLDALI PANEL (Márkák & Kollekciók) */
+    .left-panel {
+      position: fixed;
+      top: 0;
+      left: -400px; /* Induláskor rejtve */
+      width: 400px;
+      height: 100%;
+      background-color: #fff;
+      box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+      padding: 10px;
+      transition: left 0.3s ease-in-out;
+      z-index: 1500;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .left-panel.active {
+      left: 0;
+    }
+    .left-panel-header {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .left-panel-close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #000;
+    }
+    /* Itt csökkentettük a margin-top-ot (volt 60px) */
+    .left-panel-content {
+      margin-top: 3px; /* állítsd tetszés szerint 10px-re, 20px-re, stb. */
+    }
+    .left-panel-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .left-panel-list,
+    .left-panel-collections ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .left-panel-list li,
+    .left-panel-collections li {
+      margin-bottom: 40px;
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+    .left-panel-list li a,
+    .left-panel-collections li a {
+      text-decoration: none;
+      color: #000;
+    }
+    .left-panel-list li a:hover,
+    .left-panel-collections li a:hover {
+      color: #111;
+    }
+    .left-panel-collections {
+      margin-top: 30px;
+    }
+    .left-panel-collections h3 {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+    }
+    .left-panel-bottom {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .left-panel-bottom button {
+      background-color: white;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border-radius: 5px;
+    }
 
   </style>
 </head>
 <body>
   <!-- Felső navbar -->
   <header class="navbar">
-    <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+    <!-- Fontos: adjuk hozzá az ID-t, hogy az event listener működjön -->
+    <button class="menu-toggle" id="openLeftPanel"><i class="fas fa-bars"></i></button>
     <a class="navbar-brand" href="cipok.html">Cipők</a>
     <div class="navbar-icons">
       <i class="fas fa-search"></i>
@@ -133,6 +217,36 @@
       <i class="fas fa-shopping-cart"></i>
     </div>
   </header>
+
+  <!-- BAL OLDALI PANEL (CIPŐK & KOLLEKCIÓK) -->
+  <div id="leftPanel" class="left-panel">
+    <div class="left-panel-header">
+      <button class="left-panel-close-btn" id="closeLeftPanel">×</button>
+    </div>
+    <div class="left-panel-content">
+      <div class="left-panel-title">CIPŐK</div>
+      <ul class="left-panel-list">
+        <li><a href="nike.html">Nike</a></li>
+        <li><a href="jordan.html">Jordan</a></li>
+        <li><a href="adidas.html">Adidas</a></li>
+        <li><a href="maison.html">Maison Margiela</a></li>
+        <li><a href="rick.html">Rick Owens</a></li>
+        <li><a href="balenciaga.html">Balenciaga</a></li>
+      </ul>
+      <div class="left-panel-collections">
+        <h3>Kollekciók</h3>
+        <ul>
+          <li><a href="#">Aktuális Kollekció</a></li>
+          <li><a href="#">Akciós Kollekció</a></li>
+          <li><a href="#">Újdonságok</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="left-panel-bottom">
+      <!-- Példa gomb -->
+      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
+    </div>
+  </div>
 
   <!-- Fő tartalom -->
   <main class="container my-5">
@@ -160,8 +274,28 @@
     &copy; 2025 Kicksify. All rights reserved.
   </footer>
 
-  <!-- Saját JS -->
+  <!-- A Nike-cipők betöltését végző saját JS -->
   <script src="nike.js"></script>
+
+  <!-- Panel megnyitásához/bezárásához szükséges JS -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      // Bal oldali panel
+      const openLeftPanelBtn = document.getElementById("openLeftPanel");
+      const leftPanel = document.getElementById("leftPanel");
+      const closeLeftPanelBtn = document.getElementById("closeLeftPanel");
+
+      openLeftPanelBtn.addEventListener("click", () => {
+        leftPanel.classList.add("active");
+      });
+      closeLeftPanelBtn.addEventListener("click", () => {
+        leftPanel.classList.remove("active");
+      });
+
+      // Itt a rendezés, cipők betöltése stb. a "nike.js" -ben történik.
+    });
+  </script>
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
