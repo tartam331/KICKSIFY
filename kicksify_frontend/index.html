@@ -68,7 +68,7 @@
       height: 100%;
       background-color: #fff;
       box-shadow: 5px 0 15px rgba(0,0,0,0.3);
-      padding: 20px;
+      padding: 10px;
       transition: left 0.3s ease-in-out;
       z-index: 1500;
       display: flex;
@@ -89,8 +89,9 @@
       cursor: pointer;
       color: #000;
     }
+    /* Itt csökkentettük a margin-top-ot (volt 60px) */
     .left-panel-content {
-      margin-top: 60px;
+      margin-top: 3px; /* állítsd tetszés szerint 10px-re, 20px-re, stb. */
     }
     .left-panel-title {
       font-size: 2rem;
@@ -105,7 +106,7 @@
     }
     .left-panel-list li,
     .left-panel-collections li {
-      margin-bottom: 15px;
+      margin-bottom: 40px;
       font-size: 1.3rem;
       font-weight: bold;
     }
@@ -138,8 +139,6 @@
       cursor: pointer;
       border-radius: 5px;
     }
-    
-    
     /* KERESŐPANEL (jobbról csúszó) */
     .side-search {
       position: fixed;
@@ -332,6 +331,7 @@
       cursor: pointer;
       margin-top: 10px;
     }
+
   </style>
 </head>
 <body>
