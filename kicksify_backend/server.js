@@ -16,8 +16,9 @@ const db = mysql.createConnection({
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASS || "",
   database: process.env.DB_NAME || "kicksify",
-  port: process.env.DB_PORT || 3306
+  port: process.env.DB_PORT || 3307
 });
+  
 
 
  
@@ -232,4 +233,24 @@ app.get("*", (req, res) => {
 // Szerver indítása
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
+});
+  
+
+
+
+
+
+app.put("/felhasznalok/:id", (req, res) => {
+  const userId = req.params.id;
+  const { is_admin } = req.body;
+  // Itt jön az adatbázis lekérdezés, például egy SQL UPDATE parancs
+  // Példa (pszeudokód):
+  db.query("UPDATE users SET is_admin = ? WHERE id = ?", [is_admin, userId], (err, result) => {
+      if (err) return res.status(500).json({ error: "Hiba történt" });
+      // Majd lekérjük az updated user adatait és elküldjük
+      db.query("SELECT * FROM users WHERE id = ?", [userId], (err, rows) => {
+          if (err) return res.status(500).json({ error: "Hiba történt" });
+          res.json(rows[0]);
+      });
+  });
 });
