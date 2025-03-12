@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kicksify - Exkluzív Termék</title>
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Chart.js (opcionális, ha szeretnéd) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Külső CSS fájl (ha van) -->
+  <link rel="stylesheet" href="product.css">
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <a class="navbar-brand" href="exkluziv.html">Exkluzív</a>
+    <div class="navbar-icons">
+      <i class="fas fa-user" id="openAuthModal"></i>
+      <i class="fas fa-shopping-cart" id="openCart"></i>
+      <i class="fas fa-search" id="openSearch"></i>
+    </div>
+  </header>
+
+  <!-- FŐ TARTALOM -->
+  <main class="container">
+    <div class="row">
+      <!-- Bal oszlop: Képgaléria és (opcionális) ár történelem -->
+      <div class="col-md-6 text-center">
+        <img id="main-image" src="no-image.png" alt="Termék képe" class="img-fluid" />
+        <div class="gallery mt-3" id="image-gallery"></div>
+
+        <div id="price-history-container">
+          <h3>Ár történelem</h3>
+          <!-- Ha van exkluzív árkövetés, ide mehet a chart -->
+          <canvas id="priceChart"></canvas>
+          <div id="priceTableContainer"></div>
+        </div>
+      </div>
+
+      <!-- Jobb oszlop: Termék adatok, méretek, mennyiség, kosár gomb, leírás -->
+      <div class="col-md-6">
+        <p id="product-brand"></p>
+        <h2 class="product-name" id="product-name"></h2>
+        <p class="product-price" id="product-price"></p>
+
+        <div class="size-container">
+          <p><strong>MÉRETEK:</strong> <span id="selected-size"></span></p>
+          <div id="size-options"></div>
+        </div>
+
+        <p class="mt-3"><strong>Mennyiség:</strong></p>
+        <div class="quantity-container">
+          <button class="quantity-btn" onclick="updateQuantity(-1)">-</button>
+          <input type="number" id="quantity" value="1" min="1" readonly/>
+          <button class="quantity-btn" onclick="updateQuantity(1)">+</button>
+        </div>
+
+        <button class="btn btn-dark mt-3" id="addToCartBtn">Kosárba</button>
+
+        <!-- Termék leírása -->
+        <div id="product-description" class="mt-3">
+          <!-- A leírás ide kerül -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER (gördíthető, nem fix) -->
+  <footer>
+    &copy; 2025 Kicksify. All rights reserved.
+  </footer>
+
+  <!-- KERESŐPANEL ÉS OVERLAY (ha szükséges) -->
+  <div id="sideSearch" class="side-search">
+    <div class="search-header">
+      <input type="text" id="sideSearchInput" placeholder="Keresés...">
+      <button id="closeSideSearch" class="close-btn">&times;</button>
+    </div>
+    <div id="sideSearchResults" class="search-results"></div>
+  </div>
+  <div id="searchOverlay" class="search-overlay"></div>
+
+  <!-- KOSÁRPANEL -->
+  <div id="cartModal" class="cart-modal">
+    <div class="cart-content">
+      <button class="cart-close-btn" aria-label="Bezárás">&times;</button>
+      <h2>Kosár tartalma</h2>
+      <p class="mt-2" id="cartEmptyText">A kosár üres.</p>
+      <div id="cartItems" class="mt-2"></div>
+      <button id="clear-cart" class="btn">Kosár ürítése</button>
+    </div>
+  </div>
+
+  <!-- BEJELENTKEZÉS/REGISZTRÁCIÓ MODAL -->
+  <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <!-- Modal fejléc -->
+        <div class="modal-header">
+          <h5 class="modal-title" id="authModalLabel">Bejelentkezés</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Bezár"></button>
+        </div>
+        <!-- Modal tartalom -->
+        <div class="modal-body">
+          <!-- Profil szekció (ha bejelentkezett) -->
+          <div id="profileSection" style="display:none;">
+            <p id="profileUsername" class="mb-3"></p>
+            <button id="editProfileButton" class="btn btn-secondary w-100 mb-3">Adataim szerkesztése</button>
+            <button id="logoutButton" class="btn btn-primary w-100 mb-3">Kijelentkezés</button>
+            <a href="orders.html" class="btn btn-secondary w-100">Korábbi vásárlások</a>
+          </div>
+          <!-- Profil szerkesztése -->
+          <div id="editProfileSection" style="display:none;">
+            <form id="editProfileForm">
+              <div class="mb-3">
+                <label for="editVezeteknev" class="form-label">Vezetéknév</label>
+                <input type="text" class="form-control" id="editVezeteknev" required>
+              </div>
+              <div class="mb-3">
+                <label for="editKeresztnev" class="form-label">Keresztnév</label>
+                <input type="text" class="form-control" id="editKeresztnev" required>
+              </div>
+              <div class="mb-3">
+                <label for="editFelhasznalonev" class="form-label">Felhasználónév</label>
+                <input type="text" class="form-control" id="editFelhasznalonev" required>
+              </div>
+              <div class="mb-3">
+                <label for="editEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="editEmail" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Mentés</button>
+              <p class="mt-3 text-center"><span class="toggle-link" id="cancelEdit">Mégse</span></p>
+            </form>
+          </div>
+          <!-- Login szekció (ha nincs bejelentkezve) -->
+          <div id="loginSection">
+            <form id="loginForm">
+              <div class="mb-3">
+                <label for="loginEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="loginEmail" required>
+              </div>
+              <div class="mb-3">
+                <label for="loginPassword" class="form-label">Jelszó</label>
+                <input type="password" class="form-control" id="loginPassword" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Bejelentkezés</button>
+            </form>
+            <p class="mt-3 text-center">
+              Még nincs fiókod? <span class="toggle-link" id="showRegister">Regisztráció</span>
+            </p>
+          </div>
+          <!-- Regisztráció szekció -->
+          <div id="registerSection" style="display:none;">
+            <form id="registerForm">
+              <div class="mb-3">
+                <label for="registerFirstName" class="form-label">Keresztnév</label>
+                <input type="text" class="form-control" id="registerFirstName" required>
+              </div>
+              <div class="mb-3">
+                <label for="registerLastName" class="form-label">Vezetéknév</label>
+                <input type="text" class="form-control" id="registerLastName" required>
+              </div>
+              <div class="mb-3">
+                <label for="registerUsername" class="form-label">Felhasználónév</label>
+                <input type="text" class="form-control" id="registerUsername" required>
+              </div>
+              <div class="mb-3">
+                <label for="registerEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="registerEmail" required>
+              </div>
+              <div class="mb-3">
+                <label for="registerPassword" class="form-label">Jelszó</label>
+                <input type="password" class="form-control" id="registerPassword" required>
+              </div>
+              <button type="submit" class="btn btn-primary w-100">Regisztráció</button>
+            </form>
+            <p class="mt-3 text-center">
+              Van már fiókod? <span class="toggle-link" id="showLogin">Bejelentkezés</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Oldalspecifikus JS (exkluzivproduct.js) -->
+  <script src="exkluzivproduct.js"></script>
+</body>
+</html>
