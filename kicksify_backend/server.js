@@ -116,53 +116,53 @@ app.get("/api/cipok/:id/meretek", (req, res) => {
 
 // =============== EXKLUZÍV CIPŐK ENDPOINTOK ===============
 
-// Összes exkluzív cipő lekérése
+// 1) Összes exkluzív cipő
 app.get("/api/exkluziv_cipok", (req, res) => {
-  const query = "SELECT * FROM exkluziv_cipok";
-  db.query(query, (err, results) => {
+  db.query("SELECT * FROM exkluziv_cipok", (err, results) => {
     if (err) {
-      console.error("❌ Exkluzív cipők lekérdezési hiba:", err);
+      console.error("Hiba az exkluziv_cipok lekérdezésnél:", err);
       return res.status(500).json({ error: "Hiba történt az exkluzív cipők lekérdezésekor" });
     }
     res.json(results);
   });
 });
 
-// Egy adott exkluzív cipő lekérése méretekkel együtt
+// 2) Egy exkluzív cipő adatai ID alapján
 app.get("/api/exkluziv_cipok/:id", (req, res) => {
-  const exId = req.params.id;
-  const query = `
-    SELECT ec.*,
-           GROUP_CONCAT(em.meret ORDER BY em.meret ASC) AS meretek
-    FROM exkluziv_cipok ec
-    LEFT JOIN exkluziv_cipo_meretek em ON ec.exkluziv_id = em.exkluziv_id
-    WHERE ec.exkluziv_id = ?
-    GROUP BY ec.exkluziv_id
-  `;
-  db.query(query, [exId], (err, results) => {
+  const exkluzivId = req.params.id;
+  db.query("SELECT * FROM exkluziv_cipok WHERE exkluziv_id = ?", [exkluzivId], (err, results) => {
     if (err) {
-      console.error("❌ /api/exkluziv_cipok/:id hiba:", err);
-      return res.status(500).json({ error: "Adatbázis hiba" });
+      console.error("Hiba az exkluziv_cipok/:id lekérdezésnél:", err);
+      return res.status(500).json({ error: "Hiba történt az exkluzív cipő lekérdezésekor" });
     }
     if (results.length === 0) {
       return res.status(404).json({ error: "Nincs ilyen exkluzív termék" });
     }
+    // Eredmény: 1 sor
     res.json(results[0]);
   });
 });
 
-// Egy adott exkluzív cipő méreteinek lekérése
+// 3) Méretek az exkluzív cipőhöz
 app.get("/api/exkluziv_cipok/:id/meretek", (req, res) => {
-  const exId = req.params.id;
-  const query = "SELECT meret FROM exkluziv_cipo_meretek WHERE exkluziv_id = ?";
-  db.query(query, [exId], (err, results) => {
+  const exkluzivId = req.params.id;
+  // Feltételezzük, hogy exkluziv_cipo_meretek táblában exkluziv_id + meret_id + keszlet van,
+  // és a meret_id-hoz tartozik a meret száma, vagy közvetlen "meret" oszlop van.
+  // Példa:
+  db.query("SELECT meret_id, keszlet FROM exkluziv_cipo_meretek WHERE exkluziv_id = ?", [exkluzivId], (err, results) => {
     if (err) {
-      console.error("❌ /api/exkluziv_cipok/:id/meretek hiba:", err);
-      return res.status(500).json({ error: "Adatbázis hiba" });
+      console.error("Hiba a exkluziv_cipok/:id/meretek lekérdezésnél:", err);
+      return res.status(500).json({ error: "Hiba történt az exkluzív méretek lekérdezésekor" });
     }
+    // Ha a tábla a 'meret' értéket is tartalmazza, pl. "meret" float NOT NULL
+    // akkor egyszerűen:
+    // SELECT meret FROM exkluziv_cipo_meretek ...
+    // Például:
+    // res.json(results); // => [{ meret: 42, keszlet: 1 }, ...]
     res.json(results);
   });
 });
+
 
 // (Opcionális) Ha lenne exkluzív ár-változás tábla, ide jöhetne hasonlóan
 
