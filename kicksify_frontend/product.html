@@ -11,24 +11,223 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Külső CSS fájl -->
   <link rel="stylesheet" href="product.css">
+  <!-- Oldalspecifikus stílusok -->
+  <style>
+    /* Alapbeállítások */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+    /* FIX NAVBAR */
+    .navbar {
+      background-color: rgba(0,0,0,0.8);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+    .navbar .navbar-brand {
+      font-size: 1.5rem;
+      color: white;
+      font-weight: bold;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      text-decoration: none;
+    }
+    .navbar .menu-toggle {
+      font-size: 1.5rem;
+      color: white;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+    .navbar-icons {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      color: white;
+    }
+    .navbar-icons i {
+      cursor: pointer;
+    }
+    /* Tartalom eltolása a fix navbar miatt */
+    main.container {
+      padding-top: 80px;
+    }
+    /* FOOTER */
+    footer {
+      background-color: #333;
+      color: white;
+      padding: 10px 0;
+      text-align: center;
+      margin-top: 50px;
+    }
+    /* Termék oldal – galéria, méretek, stb. */
+    .gallery img.small {
+      width: 70px;
+      height: 70px;
+      object-fit: cover;
+      margin: 5px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+    }
+    .size-option {
+      margin: 5px;
+      padding: 5px 10px;
+      border: 1px solid #000;
+      background-color: #fff;
+      cursor: pointer;
+    }
+    .size-option.active {
+      background-color: #000;
+      color: #fff;
+    }
+    .quantity-btn {
+      width: 40px;
+      height: 40px;
+      font-size: 1.5rem;
+    }
+    /* BAL OLDALI PANEL */
+    .left-panel {
+      position: fixed;
+      top: 0;
+      left: -400px;
+      width: 400px;
+      height: 100%;
+      background-color: #fff;
+      box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+      padding: 10px;
+      transition: left 0.3s ease-in-out;
+      z-index: 1500;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .left-panel.active {
+      left: 0;
+    }
+    .left-panel-header {
+      display: flex;
+      justify-content: flex-end;
+    }
+    .left-panel-close-btn {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #000;
+    }
+    .left-panel-content {
+      margin-top: 3px;
+    }
+    .left-panel-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .left-panel-list,
+    .left-panel-collections ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .left-panel-list li,
+    .left-panel-collections li {
+      margin-bottom: 40px;
+      font-size: 1.3rem;
+      font-weight: bold;
+    }
+    .left-panel-list li a,
+    .left-panel-collections li a {
+      text-decoration: none;
+      color: #000;
+    }
+    .left-panel-list li a:hover,
+    .left-panel-collections li a:hover {
+      color: #111;
+    }
+    .left-panel-collections {
+      margin-top: 30px;
+    }
+    .left-panel-collections h3 {
+      font-size: 1.8rem;
+      margin-bottom: 15px;
+    }
+    .left-panel-bottom {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .left-panel-bottom button {
+      background-color: white;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    /* Leírás accordion (a termék leírásához) */
+    .accordion-button:not(.collapsed) {
+      color: #000;
+      background-color: #e6e6e6;
+    }
+  </style>
 </head>
 <body>
   <!-- NAVBAR -->
   <header class="navbar">
-    <a class="navbar-brand" href="cipok.html">Cipők</a>
+    <button class="menu-toggle" id="openLeftPanel"><i class="fas fa-bars"></i></button>
+    <a class="navbar-brand" href="index.html">Kicksify</a>
     <div class="navbar-icons">
+      <span>HUF Ft</span>
+      <span>Magyar</span>
+      <i class="fas fa-search" id="openSearch"></i>
       <i class="fas fa-user" id="openAuthModal"></i>
       <i class="fas fa-shopping-cart" id="openCart"></i>
-      <i class="fas fa-search" id="openSearch"></i>
     </div>
   </header>
 
+  <!-- BAL OLDALI PANEL -->
+  <div id="leftPanel" class="left-panel">
+    <div class="left-panel-header">
+      <button class="left-panel-close-btn" id="closeLeftPanel">×</button>
+    </div>
+    <div class="left-panel-content">
+      <div class="left-panel-title">CIPŐK</div>
+      <ul class="left-panel-list">
+        <li><a href="nike.html">Nike</a></li>
+        <li><a href="jordan.html">Jordan</a></li>
+        <li><a href="adidas.html">Adidas</a></li>
+        <li><a href="maison.html">Maison Margiela</a></li>
+        <li><a href="rick.html">Rick Owens</a></li>
+        <li><a href="balenciaga.html">Balenciaga</a></li>
+      </ul>
+      <div class="left-panel-collections">
+        <h3>Kollekciók</h3>
+        <ul>
+          <li><a href="exkluziv.html">Exkluzív</a></li>
+          <li><a href="#">Akciós Kollekció</a></li>
+          <li><a href="#">Újdonságok</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="left-panel-bottom">
+      <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
+    </div>
+  </div>
+
   <!-- FŐ TARTALOM -->
-  <main class="container">
+  <main class="container my-5">
     <div class="row">
-      <!-- Bal oszlop: Képgaléria és ár történelem -->
+      <!-- Bal oszlop: Képgaléria, ár történelem -->
       <div class="col-md-6 text-center">
-        <img id="main-image" src="no-image.png" alt="Termék képe" class="img-fluid" />
+        <img id="main-image" src="no-image.png" alt="Termék képe" class="img-fluid">
         <div class="gallery mt-3" id="image-gallery"></div>
         <div id="price-history-container">
           <h3>Ár történelem</h3>
@@ -36,35 +235,42 @@
           <div id="priceTableContainer"></div>
         </div>
       </div>
-      <!-- Jobb oszlop: Termék adatok, méretek, mennyiség, kosár gomb, leírás -->
+      <!-- Jobb oszlop: Termék adatok, méretek, mennyiség, kosár gomb, leírás (accordion) -->
       <div class="col-md-6">
         <p id="product-brand"></p>
         <h2 class="product-name" id="product-name"></h2>
         <p class="product-price" id="product-price"></p>
-
         <div class="size-container">
           <p><strong>MÉRETEK:</strong> <span id="selected-size"></span></p>
           <div id="size-options"></div>
         </div>
-
         <p class="mt-3"><strong>Mennyiség:</strong></p>
         <div class="quantity-container">
           <button class="quantity-btn" onclick="updateQuantity(-1)">-</button>
-          <input type="number" id="quantity" value="1" min="1" readonly/>
+          <input type="number" id="quantity" value="1" min="1" readonly>
           <button class="quantity-btn" onclick="updateQuantity(1)">+</button>
         </div>
-
         <button class="btn btn-dark mt-3" id="addToCartBtn">Kosárba</button>
-
-        <!-- Termék leírása -->
-        <div id="product-description" class="mt-3">
-          <!-- A leírás ide kerül -->
+        <!-- Leírás accordion -->
+        <div class="accordion mt-3" id="descriptionAccordion">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingDescription">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDescription" aria-expanded="false" aria-controls="collapseDescription">
+                Leírás
+              </button>
+            </h2>
+            <div id="collapseDescription" class="accordion-collapse collapse" aria-labelledby="headingDescription" data-bs-parent="#descriptionAccordion">
+              <div class="accordion-body" id="product-description">
+                <!-- Termék leírása ide kerül -->
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </main>
 
-  <!-- FOOTER (gördíthető, nem fix) -->
+  <!-- FOOTER -->
   <footer>
     &copy; 2025 Kicksify. All rights reserved.
   </footer>
@@ -94,21 +300,18 @@
   <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
-        <!-- Modal fejléc -->
         <div class="modal-header">
           <h5 class="modal-title" id="authModalLabel">Bejelentkezés</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Bezár"></button>
         </div>
-        <!-- Modal tartalom -->
         <div class="modal-body">
-          <!-- Profil szekció (ha bejelentkezett) -->
+          <!-- Itt jönnek a bejelentkezés, regisztráció, profil szekciók – ugyanaz, mint korábban -->
           <div id="profileSection" style="display:none;">
             <p id="profileUsername" class="mb-3"></p>
             <button id="editProfileButton" class="btn btn-secondary w-100 mb-3">Adataim szerkesztése</button>
             <button id="logoutButton" class="btn btn-primary w-100 mb-3">Kijelentkezés</button>
             <a href="orders.html" class="btn btn-secondary w-100">Korábbi vásárlások</a>
           </div>
-          <!-- Profil szerkesztése -->
           <div id="editProfileSection" style="display:none;">
             <form id="editProfileForm">
               <div class="mb-3">
@@ -131,7 +334,6 @@
               <p class="mt-3 text-center"><span class="toggle-link" id="cancelEdit">Mégse</span></p>
             </form>
           </div>
-          <!-- Login szekció (ha nincs bejelentkezve) -->
           <div id="loginSection">
             <form id="loginForm">
               <div class="mb-3">
@@ -148,7 +350,6 @@
               Még nincs fiókod? <span class="toggle-link" id="showRegister">Regisztráció</span>
             </p>
           </div>
-          <!-- Regisztráció szekció -->
           <div id="registerSection" style="display:none;">
             <form id="registerForm">
               <div class="mb-3">
@@ -184,10 +385,10 @@
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Oldalspecifikus JS -->
+  <!-- product.js (a módosított verzió, amely a normál termékadatokat tölti be, de tartalmazza a közös funkciókat: bal panel, kereső, kosár stb.) -->
   <script src="product.js"></script>
   <script>
+    // Keresőpanel események
     document.addEventListener("DOMContentLoaded", function() {
       const openSearchBtn = document.getElementById("openSearch");
       const sideSearch = document.getElementById("sideSearch");
