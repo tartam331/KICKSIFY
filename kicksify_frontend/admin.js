@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", function() {
-  // Tabváltás kezelése
   const adminTabs = document.querySelectorAll("#adminTabs .nav-link");
   const tabContent = document.getElementById("tabContent");
 
+  // Tabváltás: data-tab => "users", "cipok", "exkluziv"
   adminTabs.forEach(tab => {
     tab.addEventListener("click", function(e) {
       e.preventDefault();
@@ -19,19 +19,19 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
-  // Alapértelmezett tartalom: Felhasználók listája
+  // Alapértelmezett: felhasználók
   loadUsers();
 
-  // ---------------------------
-  // FELHASZNÁLÓK kezelése
-  // ---------------------------
+  // ============================
+  // 1) FELHASZNÁLÓK KEZELÉSE
+  // ============================
   async function loadUsers() {
     try {
       const res = await fetch("/api/felhasznalok");
       const users = await res.json();
       renderUsers(users);
     } catch (err) {
-      console.error("Hiba felhasználók betöltésekor:", err);
+      console.error("Hiba a felhasználók betöltésekor:", err);
       tabContent.innerHTML = "<p>Hiba a felhasználók betöltésekor.</p>";
     }
   }
@@ -45,7 +45,9 @@ document.addEventListener("DOMContentLoaded", function() {
             <th>ID</th>
             <th>Vezetéknév</th>
             <th>Keresztnév</th>
+            <th>Felhasználónév</th>
             <th>Email</th>
+            <th>Jelszó Hash</th>
             <th>Szerep</th>
             <th>Műveletek</th>
           </tr>
@@ -54,15 +56,17 @@ document.addEventListener("DOMContentLoaded", function() {
     `;
     users.forEach(user => {
       html += `
-        <tr>
+        <tr id="user-${user.felhasznalo_id}">
           <td>${user.felhasznalo_id}</td>
           <td>${user.vezeteknev}</td>
           <td>${user.keresztnev}</td>
+          <td>${user.felhasznalonev || ""}</td>
           <td>${user.email}</td>
+          <td>${user.jelszo_hash || ""}</td>
           <td>${user.szerep}</td>
           <td>
-            <button class="btn btn-sm btn-primary action-btn" onclick="editUser(${user.felhasznalo_id})">Szerkesztés</button>
-            <button class="btn btn-sm btn-danger action-btn" onclick="deleteUser(${user.felhasznalo_id})">Törlés</button>
+            <button class="btn btn-sm btn-primary" onclick="editUser(${user.felhasznalo_id})">Szerkesztés</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteUser(${user.felhasznalo_id})">Törlés</button>
           </td>
         </tr>
       `;
@@ -77,6 +81,9 @@ document.addEventListener("DOMContentLoaded", function() {
         </div>
         <div class="mb-2">
           <input type="text" class="form-control" id="newKeresztnev" placeholder="Keresztnév" required>
+        </div>
+        <div class="mb-2">
+          <input type="text" class="form-control" id="newFelhasznalonev" placeholder="Felhasználónév" required>
         </div>
         <div class="mb-2">
           <input type="email" class="form-control" id="newEmail" placeholder="Email" required>
@@ -105,6 +112,9 @@ document.addEventListener("DOMContentLoaded", function() {
             <input type="text" class="form-control" id="editKeresztnev" placeholder="Keresztnév" required>
           </div>
           <div class="mb-2">
+            <input type="text" class="form-control" id="editFelhasznalonev" placeholder="Felhasználónév" required>
+          </div>
+          <div class="mb-2">
             <input type="email" class="form-control" id="editEmail" placeholder="Email" required>
           </div>
           <div class="mb-2">
@@ -129,6 +139,7 @@ document.addEventListener("DOMContentLoaded", function() {
     e.preventDefault();
     const vezeteknev = document.getElementById("newVezeteknev").value;
     const keresztnev = document.getElementById("newKeresztnev").value;
+    const felhasznalonev = document.getElementById("newFelhasznalonev").value;
     const email = document.getElementById("newEmail").value;
     const jelszo_hash = document.getElementById("newJelszo").value;
     const szerep = document.getElementById("newSzerep").value;
@@ -136,7 +147,7 @@ document.addEventListener("DOMContentLoaded", function() {
       const res = await fetch("/api/felhasznalok", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vezeteknev, keresztnev, felhasznalonev: email, email, jelszo_hash })
+        body: JSON.stringify({ vezeteknev, keresztnev, felhasznalonev, email, jelszo_hash, szerep })
       });
       const data = await res.json();
       if (data.success) {
@@ -157,6 +168,7 @@ document.addEventListener("DOMContentLoaded", function() {
       document.getElementById("editUserId").value = user.felhasznalo_id;
       document.getElementById("editVezeteknev").value = user.vezeteknev;
       document.getElementById("editKeresztnev").value = user.keresztnev;
+      document.getElementById("editFelhasznalonev").value = user.felhasznalonev || "";
       document.getElementById("editEmail").value = user.email;
       document.getElementById("editSzerep").value = user.szerep;
       document.getElementById("editUserContainer").style.display = "block";
@@ -166,22 +178,19 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   };
 
-  window.cancelEditUser = function() {
-    document.getElementById("editUserContainer").style.display = "none";
-  };
-
   async function updateUser(e) {
     e.preventDefault();
     const userId = document.getElementById("editUserId").value;
     const vezeteknev = document.getElementById("editVezeteknev").value;
     const keresztnev = document.getElementById("editKeresztnev").value;
+    const felhasznalonev = document.getElementById("editFelhasznalonev").value;
     const email = document.getElementById("editEmail").value;
     const szerep = document.getElementById("editSzerep").value;
     try {
       const res = await fetch(`/api/felhasznalok/${userId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vezeteknev, keresztnev, email, szerep })
+        body: JSON.stringify({ vezeteknev, keresztnev, felhasznalonev, email, szerep })
       });
       const data = await res.json();
       if (data.success) {
@@ -212,9 +221,9 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   };
 
-  // ---------------------------
-  // CIPŐK (normál cipők) kezelése
-  // ---------------------------
+  // ============================
+  // 2) CIPŐK + MÉRETEK KEZELÉSE
+  // ============================
   async function loadCipok() {
     try {
       const res = await fetch("/api/cipok");
@@ -228,40 +237,47 @@ document.addEventListener("DOMContentLoaded", function() {
 
   function renderCipok(cipok) {
     let html = `
-      <h2>Normál Cipők</h2>
+      <h2>Cipők</h2>
       <button class="btn btn-success mb-3" id="addCipoBtn">Új cipő hozzáadása</button>
       <table class="table table-striped">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Képek</th>
             <th>Márka</th>
             <th>Modell</th>
-            <th>Méretek</th>
             <th>Ár</th>
             <th>Leírás</th>
+            <th>Méretek</th>
+            <th>Képek</th>
             <th>Műveletek</th>
           </tr>
         </thead>
         <tbody>
     `;
     cipok.forEach(cipo => {
+      // A backend GROUP_CONCAT-tal adja vissza a cipo.meretek mezőt
+      const meretek = cipo.meretek ? cipo.meretek.split(",").join(", ") : "";
+      // A "kep" mezőben a képek vesszővel elválasztva
+      // Minden egyes képre /cipok/<fájlnév> hivatkozást teszünk
+      const kepekHTML = cipo.kep
+        ? cipo.kep.split(",").map(fn => {
+            const trimmed = fn.trim();
+            return `<img src="/cipok/${trimmed}" alt="${trimmed}" style="height:40px; margin-right:4px;">`;
+          }).join("")
+        : "";
       html += `
-        <tr>
+        <tr id="cipo-${cipo.cipo_id}">
           <td>${cipo.cipo_id}</td>
-          <td>
-            ${Array.isArray(cipo.image_urls)
-              ? cipo.image_urls.map(url => url ? `<img src="${url}" alt="Cipő kép" style="height:50px; margin-right:5px;">` : "").join("")
-              : ""}
-          </td>
           <td>${cipo.marka}</td>
           <td>${cipo.modell}</td>
-          <td>${Array.isArray(cipo.meretek) ? cipo.meretek.join(", ") : (cipo.meretek || "")}</td>
           <td>${Number(cipo.ar).toLocaleString("hu-HU")} Ft</td>
-          <td>${cipo.leiras.substring(0, 50)}...</td>
+          <td>${cipo.leiras.substring(0,50)}...</td>
+          <td>${meretek}</td>
+          <td>${kepekHTML}</td>
           <td>
-            <button class="btn btn-sm btn-primary action-btn" onclick="editCipo(${cipo.cipo_id})">Szerkesztés</button>
-            <button class="btn btn-sm btn-danger action-btn" onclick="deleteCipo(${cipo.cipo_id})">Törlés</button>
+            <button class="btn btn-sm btn-primary" onclick="editCipo(${cipo.cipo_id})">Szerkesztés</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteCipo(${cipo.cipo_id})">Törlés</button>
+            <button class="btn btn-sm btn-secondary" onclick="showCipoMeretek(${cipo.cipo_id})">Méretek</button>
           </td>
         </tr>
       `;
@@ -269,87 +285,46 @@ document.addEventListener("DOMContentLoaded", function() {
     html += `
         </tbody>
       </table>
+      
+      <!-- Új cipő űrlap -->
       <div id="addCipoContainer" style="display:none;">
         <h3>Új cipő hozzáadása</h3>
         <form id="addCipoForm">
+          <div class="mb-2"><input type="text" class="form-control" id="newMarka" placeholder="Márka" required></div>
+          <div class="mb-2"><input type="text" class="form-control" id="newModell" placeholder="Modell" required></div>
+          <div class="mb-2"><input type="number" class="form-control" id="newAr" placeholder="Ár" required></div>
+          <div class="mb-2"><textarea class="form-control" id="newLeiras" placeholder="Leírás" required></textarea></div>
           <div class="mb-2">
-            <input type="text" class="form-control" id="newMarka" placeholder="Márka" required>
+            <input type="text" class="form-control" id="newKep" placeholder="Képek (pl. balenciaga1.jpg, balenciaga2.jpg)">
           </div>
-          <div class="mb-2">
-            <input type="text" class="form-control" id="newModell" placeholder="Modell" required>
-          </div>
-          <div class="mb-2">
-            <input type="number" class="form-control" id="newAr" placeholder="Ár" required>
-          </div>
-          <div class="mb-2">
-            <textarea class="form-control" id="newLeiras" placeholder="Leírás" required></textarea>
-          </div>
-          <!-- Három külön input a kép URL-ekhez -->
-          <div class="mb-2">
-            <input type="text" class="form-control" id="newImageUrl1" placeholder="Kép URL 1 (pl. https://domain.hu/kep1.jpg)">
-          </div>
-          <div class="mb-2">
-            <input type="text" class="form-control" id="newImageUrl2" placeholder="Kép URL 2 (pl. https://domain.hu/kep2.jpg)">
-          </div>
-          <div class="mb-2">
-            <input type="text" class="form-control" id="newImageUrl3" placeholder="Kép URL 3 (pl. https://domain.hu/kep3.jpg)">
-          </div>
-          <!-- Új mező a méretek megadásához -->
-          <div class="mb-2">
-            <input type="text" class="form-control" id="newSizes" placeholder="Elérhető méretek, vesszővel elválasztva (pl. 40, 41, 42)">
-          </div>
-          <button type="submit" class="btn btn-success">Hozzáadás</button>
+          <button type="submit" class="btn btn-success">Mentés</button>
           <button type="button" class="btn btn-secondary" onclick="cancelAddCipo()">Mégse</button>
         </form>
       </div>
+      
+      <!-- Cipő szerkesztése űrlap -->
       <div id="editCipoContainer" style="display:none;">
         <h3>Cipő szerkesztése</h3>
         <form id="editCipoForm">
           <input type="hidden" id="editCipoId">
+          <div class="mb-2"><input type="text" class="form-control" id="editMarka" placeholder="Márka" required></div>
+          <div class="mb-2"><input type="text" class="form-control" id="editModell" placeholder="Modell" required></div>
+          <div class="mb-2"><input type="number" class="form-control" id="editAr" placeholder="Ár" required></div>
+          <div class="mb-2"><textarea class="form-control" id="editLeiras" placeholder="Leírás" required></textarea></div>
           <div class="mb-2">
-            <input type="text" class="form-control" id="editMarka" placeholder="Márka" required>
-          </div>
-          <div class="mb-2">
-            <input type="text" class="form-control" id="editModell" placeholder="Modell" required>
-          </div>
-          <div class="mb-2">
-            <input type="number" class="form-control" id="editAr" placeholder="Ár" required>
-          </div>
-          <div class="mb-2">
-            <textarea class="form-control" id="editLeiras" placeholder="Leírás" required></textarea>
-          </div>
-          <!-- Három input a kép URL-ek szerkesztéséhez -->
-          <div class="mb-2">
-            <input type="text" class="form-control" id="editImageUrl1" placeholder="Kép URL 1 (pl. https://domain.hu/kep1.jpg)">
-          </div>
-          <div class="mb-2">
-            <input type="text" class="form-control" id="editImageUrl2" placeholder="Kép URL 2 (pl. https://domain.hu/kep2.jpg)">
-          </div>
-          <div class="mb-2">
-            <input type="text" class="form-control" id="editImageUrl3" placeholder="Kép URL 3 (pl. https://domain.hu/kep3.jpg)">
-          </div>
-          <!-- Új mező a méretek szerkesztéséhez -->
-          <div class="mb-2">
-            <input type="text" class="form-control" id="editSizes" placeholder="Elérhető méretek, vesszővel elválasztva (pl. 40, 41, 42)">
+            <input type="text" class="form-control" id="editKep" placeholder="Képek (pl. balenciaga1.jpg, balenciaga2.jpg)">
           </div>
           <button type="submit" class="btn btn-primary">Mentés</button>
           <button type="button" class="btn btn-secondary" onclick="cancelEditCipo()">Mégse</button>
         </form>
       </div>
+
+      <!-- A kiválasztott cipő méretei itt jelennek meg -->
+      <div id="meretekContainer" style="display:none;"></div>
     `;
     tabContent.innerHTML = html;
 
-    // Azonosítók hozzárendelése a sorokhoz
-    const rows = document.querySelectorAll("#tabContent table tbody tr");
-    rows.forEach(row => {
-      const firstCell = row.querySelector("td");
-      if (firstCell) {
-        const cipoId = firstCell.textContent.trim();
-        row.id = `cipo-${cipoId}`;
-      }
-    });
-
-    document.getElementById("addCipoBtn").addEventListener("click", function() {
+    document.getElementById("addCipoBtn").addEventListener("click", () => {
       document.getElementById("addCipoContainer").style.display = "block";
     });
     document.getElementById("addCipoForm").addEventListener("submit", addCipo);
@@ -362,17 +337,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const modell = document.getElementById("newModell").value;
     const ar = document.getElementById("newAr").value;
     const leiras = document.getElementById("newLeiras").value;
-    const imageUrl1 = document.getElementById("newImageUrl1").value;
-    const imageUrl2 = document.getElementById("newImageUrl2").value;
-    const imageUrl3 = document.getElementById("newImageUrl3").value;
-    const sizesInput = document.getElementById("newSizes").value;
-    const meretek = sizesInput.split(",").map(s => s.trim()).filter(s => s !== "");
-    const image_urls = [imageUrl1, imageUrl2, imageUrl3].filter(url => url.trim() !== "");
+    const kep = document.getElementById("newKep").value.trim();
     try {
       const res = await fetch("/api/cipok", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ marka, modell, ar, leiras, image_urls, meretek })
+        body: JSON.stringify({ marka, modell, ar, leiras, kep })
       });
       const data = await res.json();
       if (data.success) {
@@ -386,7 +356,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  async function editCipo(cipoId) {
+  window.editCipo = async function(cipoId) {
     try {
       const res = await fetch(`/api/cipok/${cipoId}`);
       const cipo = await res.json();
@@ -395,18 +365,13 @@ document.addEventListener("DOMContentLoaded", function() {
       document.getElementById("editModell").value = cipo.modell;
       document.getElementById("editAr").value = cipo.ar;
       document.getElementById("editLeiras").value = cipo.leiras;
-      // Ha az adatbázisból tömbként jönnek az URL-ek, feltöltjük a három mezőt
-      document.getElementById("editImageUrl1").value = cipo.image_urls && cipo.image_urls[0] ? cipo.image_urls[0] : "";
-      document.getElementById("editImageUrl2").value = cipo.image_urls && cipo.image_urls[1] ? cipo.image_urls[1] : "";
-      document.getElementById("editImageUrl3").value = cipo.image_urls && cipo.image_urls[2] ? cipo.image_urls[2] : "";
-      // Ha a méretek tömbként jönnek, vesszővel elválasztva töltjük be az edit mezőbe
-      document.getElementById("editSizes").value = Array.isArray(cipo.meretek) ? cipo.meretek.join(", ") : (cipo.meretek || "");
+      document.getElementById("editKep").value = cipo.kep || "";
       document.getElementById("editCipoContainer").style.display = "block";
     } catch (err) {
       console.error(err);
       alert("Hiba a cipő betöltésekor");
     }
-  }
+  };
 
   async function updateCipo(e) {
     e.preventDefault();
@@ -415,17 +380,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const modell = document.getElementById("editModell").value;
     const ar = document.getElementById("editAr").value;
     const leiras = document.getElementById("editLeiras").value;
-    const imageUrl1 = document.getElementById("editImageUrl1").value;
-    const imageUrl2 = document.getElementById("editImageUrl2").value;
-    const imageUrl3 = document.getElementById("editImageUrl3").value;
-    const sizesInput = document.getElementById("editSizes").value;
-    const meretek = sizesInput.split(",").map(s => s.trim()).filter(s => s !== "");
-    const image_urls = [imageUrl1, imageUrl2, imageUrl3].filter(url => url.trim() !== "");
+    const kep = document.getElementById("editKep").value.trim();
     try {
       const res = await fetch(`/api/cipok/${cipoId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ marka, modell, ar, leiras, image_urls, meretek })
+        body: JSON.stringify({ marka, modell, ar, leiras, kep })
       });
       const data = await res.json();
       if (data.success) {
@@ -440,18 +400,15 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   }
 
-  async function deleteCipo(cipoId) {
-    if (!confirm("Biztosan törlöd a cipőt?")) return;
+  window.deleteCipo = async function(cipoId) {
+    if (!confirm("Biztosan törlöd ezt a cipőt?")) return;
     try {
       const res = await fetch(`/api/cipok/${cipoId}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
         const row = document.getElementById(`cipo-${cipoId}`);
-        if (row) {
-          row.remove();
-        } else {
-          loadCipok();
-        }
+        if (row) row.remove();
+        else loadCipok();
       } else {
         alert("Hiba a cipő törlésekor");
       }
@@ -459,19 +416,188 @@ document.addEventListener("DOMContentLoaded", function() {
       console.error(err);
       alert("Hiba történt a cipő törlésekor");
     }
-  }
+  };
 
   function cancelAddCipo() {
     document.getElementById("addCipoContainer").style.display = "none";
   }
-
   function cancelEditCipo() {
     document.getElementById("editCipoContainer").style.display = "none";
   }
 
-  // ---------------------------
-  // EXKLUZÍV CIPŐK kezelése
-  // ---------------------------
+  // === MÉRETEK EGY CIPŐHÖZ ===
+  window.showCipoMeretek = async function(cipoId) {
+    try {
+      const meretekContainer = document.getElementById("meretekContainer");
+      meretekContainer.style.display = "block";
+      const res = await fetch(`/api/cipok/${cipoId}/meretek`);
+      const meretek = await res.json();
+      renderMeretekForCipo(meretek, cipoId);
+    } catch (err) {
+      console.error("Hiba a méretek betöltésekor:", err);
+      alert("Hiba a méretek betöltésekor");
+    }
+  };
+
+  function renderMeretekForCipo(meretek, cipoId) {
+    const meretekContainer = document.getElementById("meretekContainer");
+    let html = `
+      <h3>Méretek ehhez a cipőhöz (ID: ${cipoId})</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Méret</th>
+            <th>Készlet</th>
+            <th>Műveletek</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    meretek.forEach(m => {
+      html += `
+        <tr id="meret-${m.meret_id}">
+          <td>${m.meret_id}</td>
+          <td>${m.meret}</td>
+          <td>${m.keszlet}</td>
+          <td>
+            <button class="btn btn-sm btn-primary" onclick="editMeret(${m.meret_id})">Szerkesztés</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteMeret(${m.meret_id}, ${cipoId})">Törlés</button>
+          </td>
+        </tr>
+      `;
+    });
+    html += `
+        </tbody>
+      </table>
+      <h4>Új méret hozzáadása</h4>
+      <form id="addMeretForm">
+        <div class="mb-2">
+          <input type="text" class="form-control" id="newMeretMeret" placeholder="Méret (pl. 42)" required>
+        </div>
+        <div class="mb-2">
+          <input type="number" class="form-control" id="newMeretKeszlet" placeholder="Készlet" required>
+        </div>
+        <button type="submit" class="btn btn-success">Hozzáadás</button>
+      </form>
+      <div id="editMeretContainer" style="display:none;">
+        <h4>Méret szerkesztése</h4>
+        <form id="editMeretForm">
+          <input type="hidden" id="editMeretId">
+          <div class="mb-2">
+            <input type="text" class="form-control" id="editMeretMeret" placeholder="Méret" required>
+          </div>
+          <div class="mb-2">
+            <input type="number" class="form-control" id="editMeretKeszlet" placeholder="Készlet" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Mentés</button>
+          <button type="button" class="btn btn-secondary" onclick="cancelEditMeret()">Mégse</button>
+        </form>
+      </div>
+      <button class="btn btn-light mt-3" onclick="closeMeretek()">Vissza a cipők listájához</button>
+    `;
+    meretekContainer.innerHTML = html;
+
+    // Új méret
+    const addMeretForm = document.getElementById("addMeretForm");
+    addMeretForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      addMeretForCipo(cipoId);
+    });
+    // Méret szerkesztése
+    const editMeretForm = document.getElementById("editMeretForm");
+    editMeretForm.addEventListener("submit", updateMeret);
+  }
+
+  async function addMeretForCipo(cipoId) {
+    const meret = document.getElementById("newMeretMeret").value;
+    const keszlet = document.getElementById("newMeretKeszlet").value;
+    try {
+      const res = await fetch("/api/meretek", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cipo_id: cipoId, meret, keszlet })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showCipoMeretek(cipoId);
+      } else {
+        alert("Hiba a méret hozzáadásakor");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Hiba történt a méret hozzáadásakor");
+    }
+  }
+
+  window.editMeret = async function(meretId) {
+    try {
+      const res = await fetch(`/api/meretek/${meretId}`);
+      const meretObj = await res.json();
+      document.getElementById("editMeretId").value = meretObj.meret_id;
+      document.getElementById("editMeretMeret").value = meretObj.meret;
+      document.getElementById("editMeretKeszlet").value = meretObj.keszlet;
+      document.getElementById("editMeretContainer").style.display = "block";
+    } catch (err) {
+      console.error(err);
+      alert("Hiba a méret betöltésekor");
+    }
+  };
+
+  async function updateMeret(e) {
+    e.preventDefault();
+    const meretId = document.getElementById("editMeretId").value;
+    const meret = document.getElementById("editMeretMeret").value;
+    const keszlet = document.getElementById("editMeretKeszlet").value;
+    try {
+      const res = await fetch(`/api/meretek/${meretId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ meret, keszlet })
+      });
+      const data = await res.json();
+      if (data.success) {
+        document.getElementById("editMeretContainer").style.display = "none";
+        // Cipő ID lekérése, hogy frissítsük a listát
+        const res2 = await fetch(`/api/meretek/${meretId}`);
+        const updatedM = await res2.json();
+        showCipoMeretek(updatedM.cipo_id);
+      } else {
+        alert("Hiba a méret frissítésekor");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Hiba történt a méret frissítésekor");
+    }
+  }
+
+  window.deleteMeret = async function(meretId, cipoId) {
+    if (!confirm("Biztosan törlöd ezt a méretet?")) return;
+    try {
+      const res = await fetch(`/api/meretek/${meretId}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        showCipoMeretek(cipoId);
+      } else {
+        alert("Hiba a méret törlésekor");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Hiba történt a méret törlésekor");
+    }
+  };
+
+  function cancelEditMeret() {
+    document.getElementById("editMeretContainer").style.display = "none";
+  }
+  function closeMeretek() {
+    document.getElementById("meretekContainer").style.display = "none";
+    loadCipok();
+  }
+
+  // ============================
+  // 3) EXKLUZÍV CIPŐK KEZELÉSE
+  // ============================
   async function loadExkluziv() {
     try {
       const res = await fetch("/api/exkluziv_cipok");
@@ -502,15 +628,15 @@ document.addEventListener("DOMContentLoaded", function() {
     `;
     exkluziv.forEach(cipo => {
       html += `
-        <tr>
+        <tr id="exkluziv-${cipo.exkluziv_id}">
           <td>${cipo.exkluziv_id}</td>
           <td>${cipo.marka}</td>
           <td>${cipo.modell}</td>
           <td>${Number(cipo.ar).toLocaleString("hu-HU")} Ft</td>
           <td>${cipo.leiras.substring(0,50)}...</td>
           <td>
-            <button class="btn btn-sm btn-primary action-btn" onclick="editExkluziv(${cipo.exkluziv_id})">Szerkesztés</button>
-            <button class="btn btn-sm btn-danger action-btn" onclick="deleteExkluziv(${cipo.exkluziv_id})">Törlés</button>
+            <button class="btn btn-sm btn-primary" onclick="editExkluziv(${cipo.exkluziv_id})">Szerkesztés</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteExkluziv(${cipo.exkluziv_id})">Törlés</button>
           </td>
         </tr>
       `;
@@ -525,7 +651,7 @@ document.addEventListener("DOMContentLoaded", function() {
           <div class="mb-2"><input type="text" class="form-control" id="newExModell" placeholder="Modell" required></div>
           <div class="mb-2"><input type="number" class="form-control" id="newExAr" placeholder="Ár" required></div>
           <div class="mb-2"><textarea class="form-control" id="newExLeiras" placeholder="Leírás" required></textarea></div>
-          <button type="submit" class="btn btn-success">Hozzáadás</button>
+          <button type="submit" class="btn btn-success">Mentés</button>
           <button type="button" class="btn btn-secondary" onclick="cancelAddExkluziv()">Mégse</button>
         </form>
       </div>
@@ -543,17 +669,7 @@ document.addEventListener("DOMContentLoaded", function() {
       </div>
     `;
     tabContent.innerHTML = html;
-
-    const rows = document.querySelectorAll("#tabContent table tbody tr");
-    rows.forEach(row => {
-      const firstCell = row.querySelector("td");
-      if (firstCell) {
-        const exId = firstCell.textContent.trim();
-        row.id = `exkluziv-${exId}`;
-      }
-    });
-
-    document.getElementById("addExkluzivBtn").addEventListener("click", function() {
+    document.getElementById("addExkluzivBtn").addEventListener("click", () => {
       document.getElementById("addExkluzivContainer").style.display = "block";
     });
     document.getElementById("addExkluzivForm").addEventListener("submit", addExkluziv);
@@ -633,11 +749,8 @@ document.addEventListener("DOMContentLoaded", function() {
       const data = await res.json();
       if (data.success) {
         const row = document.getElementById(`exkluziv-${exId}`);
-        if (row) {
-          row.remove();
-        } else {
-          loadExkluziv();
-        }
+        if (row) row.remove();
+        else loadExkluziv();
       } else {
         alert("Hiba az exkluzív cipő törlésekor");
       }
@@ -650,14 +763,18 @@ document.addEventListener("DOMContentLoaded", function() {
   function cancelAddExkluziv() {
     document.getElementById("addExkluzivContainer").style.display = "none";
   }
-
   function cancelEditExkluziv() {
     document.getElementById("editExkluzivContainer").style.display = "none";
   }
 
-  // Globális elérés biztosítása a normál és exkluzív cipők szerkesztése, törlése funkciókhoz
+  // Exportálás globálisan az inline onclick-hez
+  window.editUser = editUser;
+  window.deleteUser = deleteUser;
   window.editCipo = editCipo;
   window.deleteCipo = deleteCipo;
+  window.showCipoMeretek = showCipoMeretek;
+  window.editMeret = editMeret;
+  window.deleteMeret = deleteMeret;
   window.editExkluziv = editExkluziv;
   window.deleteExkluziv = deleteExkluziv;
 });
