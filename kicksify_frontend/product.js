@@ -116,6 +116,55 @@ document.addEventListener("DOMContentLoaded", async function () {
     searchOverlay.classList.remove("active");
   });
   
+  // <-- Új keresési funkció: keyup esemény a kereső inputon -->
+  const searchInput = document.getElementById("sideSearchInput");
+  const searchResults = document.getElementById("sideSearchResults");
+  searchInput.addEventListener("keyup", async () => {
+    const query = searchInput.value.trim();
+    searchResults.innerHTML = "";
+    if (!query) return;
+    try {
+      const res = await fetch(`/api/cipok/search?query=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (!data.length) {
+        searchResults.innerHTML = "<p>Nincs találat.</p>";
+        return;
+      }
+      data.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "search-result-item";
+        div.style.display = "flex";
+        div.style.alignItems = "center";
+        div.style.marginBottom = "10px";
+        div.style.cursor = "pointer";
+        const img = document.createElement("img");
+        img.style.width = "50px";
+        img.style.height = "50px";
+        img.style.objectFit = "cover";
+        img.style.marginRight = "10px";
+        if (item.kep) {
+          const kepek = item.kep.split(",");
+          img.src = `/cipok/${kepek[0].trim()}`;
+        } else {
+          img.src = "no-image.png";
+        }
+        const textDiv = document.createElement("div");
+        const nameH6 = document.createElement("h6");
+        nameH6.textContent = `${item.marka} ${item.modell}`;
+        textDiv.appendChild(nameH6);
+        div.appendChild(img);
+        div.appendChild(textDiv);
+        div.addEventListener("click", () => {
+          window.location.href = `product.html?id=${item.cipo_id}`;
+        });
+        searchResults.appendChild(div);
+      });
+    } catch (err) {
+      console.error("Keresési hiba:", err);
+      searchResults.innerHTML = "<p>Hiba történt a keresés során.</p>";
+    }
+  });
+  
   // -------------------------------
   // 7) Kosár modal kezelése
   // -------------------------------
