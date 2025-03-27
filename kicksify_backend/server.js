@@ -17,7 +17,7 @@ const db = mysql.createConnection({
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASS || "",
   database: process.env.DB_NAME || "kicksify",
-  port: process.env.DB_PORT || 3307
+  port: process.env.DB_PORT || 3306
 });
 
 db.connect(err => {
@@ -29,7 +29,6 @@ db.connect(err => {
 });
 
 // STATIKUS KÉPEK KISZOLGÁLÁSA
-// A kicksify_frontend/cipok mappa tartalmazza a cipők képeit, elérhetőek a "/cipok" útvonalon.
 app.use("/cipok", express.static(path.join(__dirname, "../kicksify_frontend/cipok")));
 app.use("/images", express.static(path.join(__dirname, "images")));
 
@@ -218,6 +217,47 @@ app.get("/api/cipok", (req, res) => {
     if (err) {
       console.error("❌ Cipők lekérdezési hiba:", err);
       return res.status(500).json({ error: "Hiba az adatbázis lekérdezésekor" });
+    }
+    res.json(results);
+  });
+});
+
+// ÚJ: GET cipők keresése
+app.get("/api/cipok/search", (req, res) => {
+  const queryParam = req.query.query;
+  if (!queryParam) {
+    return res.status(400).json({ error: "Hiányzó keresési kifejezés" });
+  }
+  const lowerQuery = queryParam.toLowerCase();
+  let sql, values;
+  if (lowerQuery === "nike") {
+    // Ha pontosan "nike" a keresési kifejezés, akkor kizárólag a Nike márkájú cipőket adja vissza
+    sql = `
+      SELECT c.*,
+             GROUP_CONCAT(m.meret ORDER BY m.meret ASC SEPARATOR ',') AS meretek
+      FROM cipok c
+      LEFT JOIN meretek m ON c.cipo_id = m.cipo_id
+      WHERE LOWER(c.marka) = ?
+      GROUP BY c.cipo_id
+    `;
+    values = [lowerQuery];
+  } else {
+    // Egyéb esetben a marka vagy modell oszlopban keresünk (részleges egyezés, case-insensitive)
+    sql = `
+      SELECT c.*,
+             GROUP_CONCAT(m.meret ORDER BY m.meret ASC SEPARATOR ',') AS meretek
+      FROM cipok c
+      LEFT JOIN meretek m ON c.cipo_id = m.cipo_id
+      WHERE LOWER(c.marka) LIKE ? OR LOWER(c.modell) LIKE ?
+      GROUP BY c.cipo_id
+    `;
+    const likeQuery = `%${lowerQuery}%`;
+    values = [likeQuery, likeQuery];
+  }
+  db.query(sql, values, (err, results) => {
+    if (err) {
+      console.error("❌ Keresési hiba:", err);
+      return res.status(500).json({ error: "Adatbázis hiba" });
     }
     res.json(results);
   });
