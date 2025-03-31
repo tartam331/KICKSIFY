@@ -200,16 +200,15 @@
     /* HERO SECTION – gomb bal lent */
     .hero-section {
   position: relative;
-  height: 70vh; /* Csökkentett magasság */
-  background-color: #000; /* Vagy maradhat a háttérkép, ha szükséges */
+  height: 100vh;
+  /* Ha a slideshow képeit használod, nincs szükség háttérképre */
+  background-color: #000;
 }
 
 .hero-section .carousel-item img {
   object-fit: cover;
-  height: 70vh; /* A container magasságához igazítva */
-  width: 100%;
+  height: 100vh;
 }
-    
     /* EGYÉB RÉSZEK: popular-products, reviews, partners, newsletter, footer */
     .popular-products,
     .customer-reviews,
@@ -325,8 +324,7 @@
     <button class="menu-toggle" id="openLeftPanel"><i class="fas fa-bars"></i></button>
     <h1 class="navbar-brand">Kicksify</h1>
     <div class="navbar-icons">
-      <span class="currency-text">HUF Ft</span>
-      <span class="language-text">Magyar</span>
+      
       <i class="fas fa-search" id="openSearch"></i>
       <div id="searchOverlay" class="search-overlay"></div>
       <i class="fas fa-user" id="openAuthModal"></i>
@@ -377,7 +375,7 @@
     <div class="carousel-inner">
       <!-- 1. slide -->
       <div class="carousel-item active">
-        <img src="images/slide1.jpg" class="d-block w-100" alt="Slide 1">
+        <img src="images/KICKSIFY.png" class="d-block w-100" alt="Slide 1">
         <!-- Esetleg hozzáadhatsz caption-t -->
         <div class="carousel-caption d-none d-md-block">
           <h5>Slide 1 címe</h5>
@@ -386,7 +384,7 @@
       </div>
       <!-- 2. slide -->
       <div class="carousel-item">
-        <img src="images/slide2.jpg" class="d-block w-100" alt="Slide 2">
+        <img src="images/balenciaga.png" class="d-block w-100" alt="Slide 2">
         <div class="carousel-caption d-none d-md-block">
           <h5>Slide 2 címe</h5>
           <p>Slide 2 leírása</p>
@@ -394,7 +392,7 @@
       </div>
       <!-- 3. slide -->
       <div class="carousel-item">
-        <img src="images/slide3.jpg" class="d-block w-100" alt="Slide 3">
+        <img src="images/Logo_nike_principal.png" class="d-block w-100" alt="Slide 3">
         <div class="carousel-caption d-none d-md-block">
           <h5>Slide 3 címe</h5>
           <p>Slide 3 leírása</p>
