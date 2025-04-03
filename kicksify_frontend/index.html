@@ -316,6 +316,16 @@
       margin-top: 10px;
     }
 
+    a.admin-link {
+  color: black;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+a.admin-link:hover {
+  color: blue; /* Vagy fehér, ha azt szeretnéd */
+}
+
+
   </style>
 </head>
 <body>
@@ -563,9 +573,9 @@
               Még nincs fiókod? <span class="toggle-link" id="showRegister">Regisztráció</span>
             </p>
               <!-- Admin link -->
-  <p class="text-center">
-    <a href="admin.html">Admin</a>
-  </p>
+              <p class="text-center">
+                <a class="admin-link" href="admin-login.html">Admin</a>
+              </p>
           </div>
           <!-- Regisztrációs rész -->
           <div id="registerSection">
