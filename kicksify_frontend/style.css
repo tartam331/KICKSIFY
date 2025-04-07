@@ -57,14 +57,7 @@ body {
 .navbar .dropdown-menu .dropdown-item:hover {
   background-color: #555;
 }
-.hero-section {
-  position: relative;
-  height: 100vh;
-  background: url('images/hatter.png') no-repeat center center/cover;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+
 
 .hero-content {
   position: absolute;

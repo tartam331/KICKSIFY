@@ -10,12 +10,17 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
   
   <style>
-    /* Alapbeállítások */
+    /* Javított szelektor: a .container.text-center osztályt formázzuk */
+    .container.text-center {
+      background-color: white;
+    }
+
     body {
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
     }
+    
     /* NAVBAR */
     .navbar {
       background-color: rgba(0,0,0,0.8);
@@ -35,6 +40,7 @@
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
+      text-transform: uppercase;
     }
     .menu-toggle {
       font-size: 1.5rem;
@@ -58,8 +64,23 @@
       cursor: pointer;
       font-size: 1.2rem;
     }
+    .navbar .dropdown .dropdown-toggle {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1rem;
+    }
+    .navbar .dropdown-menu {
+      background-color: #333;
+    }
+    .navbar .dropdown-menu .dropdown-item {
+      color: white;
+    }
+    .navbar .dropdown-menu .dropdown-item:hover {
+      background-color: #555;
+    }
     
-    /* BAL OLDALI PANEL (Márkák & Kollekciók) */
+    /* BAL OLDALI PANEL (CIPŐK & KOLLEKCIÓK) */
     .left-panel {
       position: fixed;
       top: 0;
@@ -89,9 +110,8 @@
       cursor: pointer;
       color: #000;
     }
-    /* Itt csökkentettük a margin-top-ot (volt 60px) */
     .left-panel-content {
-      margin-top: 3px; /* állítsd tetszés szerint 10px-re, 20px-re, stb. */
+      margin-top: 3px;
     }
     .left-panel-title {
       font-size: 2rem;
@@ -139,6 +159,7 @@
       cursor: pointer;
       border-radius: 5px;
     }
+    
     /* KERESŐPANEL (jobbról csúszó) */
     .side-search {
       position: fixed;
@@ -147,10 +168,21 @@
       width: 30%;
       height: 100%;
       background-color: white;
-      box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+      box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
       padding: 30px;
       transition: right 0.3s ease-in-out;
       z-index: 2000;
+    }
+    /* Mobil nézet: kisebb képernyőkön szélesebb keresőpanel */
+    @media (max-width: 768px) {
+      .side-search {
+        width: 80%;
+      }
+    }
+    @media (max-width: 400px) {
+      .side-search {
+        width: 100%;
+      }
     }
     .side-search.active {
       right: 0;
@@ -197,19 +229,30 @@
       display: block;
     }
     
-    /* HERO SECTION – gomb bal lent */
+    /* HERO SLIDESHOW (Carousel) */
     .hero-section {
-  position: relative;
-  height: 100vh;
-  /* Ha a slideshow képeit használod, nincs szükség háttérképre */
-  background-color: #000;
-}
-
-.hero-section .carousel-item img {
-  object-fit: cover;
-  height: 100vh;
-}
-    /* EGYÉB RÉSZEK: popular-products, reviews, partners, newsletter, footer */
+      position: relative;
+      height: 100vh;
+    
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .hero-section .carousel-item img {
+      object-fit: cover;
+      height: 100vh;
+    }
+    /* Mobilra optimalizálás: kisebb magasság mobil eszközökön */
+    @media (max-width: 768px) {
+      .hero-section {
+        height: 60vh;
+      }
+      .hero-section .carousel-item img {
+        height: 60vh;
+      }
+    }
+    
+    /* EGYÉB RÉSZEK */
     .popular-products,
     .customer-reviews,
     .partners,
@@ -276,11 +319,9 @@
       width: 400px;
       height: 100%;
       background: white;
-      box-shadow: -4px 0 12px rgba(0,0,0,0.3);
-      padding: 20px;
-      overflow-y: auto;
-      z-index: 1001;
-      transition: right 0.3s ease;
+      box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+      transition: right 0.3s ease-in-out;
+      z-index: 1000;
     }
     .cart-modal.active {
       right: 0;
@@ -299,6 +340,9 @@
       cursor: pointer;
       color: black;
     }
+    .cart-close-btn:hover {
+      color: grey;
+    }
     #clear-cart {
       background-color: black;
       color: white;
@@ -315,17 +359,21 @@
       cursor: pointer;
       margin-top: 10px;
     }
-
-    a.admin-link {
-  color: black;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-a.admin-link:hover {
-  color: blue; /* Vagy fehér, ha azt szeretnéd */
-}
-
-
+    
+    /* A kártyák képeinek reszponzivitása */
+    .card-img-top {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    /* Responsive módosítások: fix szélességű panelek mobil eszközökön */
+    @media (max-width: 400px) {
+      .left-panel,
+      .cart-modal {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -334,7 +382,6 @@ a.admin-link:hover {
     <button class="menu-toggle" id="openLeftPanel"><i class="fas fa-bars"></i></button>
     <h1 class="navbar-brand">Kicksify</h1>
     <div class="navbar-icons">
-      
       <i class="fas fa-search" id="openSearch"></i>
       <div id="searchOverlay" class="search-overlay"></div>
       <i class="fas fa-user" id="openAuthModal"></i>
@@ -365,7 +412,6 @@ a.admin-link:hover {
       </div>
     </div>
     <div class="left-panel-bottom">
-      <!-- Sok gomb - mindegyik ugyanoda vezet? -->
       <button onclick="window.location.href='cipok.html'">Tovább a kollekcióhoz</button>
     </div>
   </div>
@@ -379,99 +425,83 @@ a.admin-link:hover {
     <div id="sideSearchResults" class="search-results"></div>
   </div>
 
-<!-- HERO SLIDESHOW (Carousel) -->
-<section class="hero-section">
-  <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
-      <!-- 1. slide -->
-      <div class="carousel-item active">
-        <img src="images/KICKSIFY.png" class="d-block w-100" alt="Slide 1">
-        <!-- Esetleg hozzáadhatsz caption-t -->
-        <div class="carousel-caption d-none d-md-block">
-          
+  <!-- HERO SLIDESHOW (Carousel) -->
+  <section class="hero-section">
+    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <!-- 1. slide -->
+        <div class="carousel-item active">
+          <img src="images/KICKSIFY.png" class="d-block w-100" alt="Slide 1">
+          <div class="carousel-caption d-none d-md-block"></div>
+        </div>
+        <!-- 2. slide -->
+        <div class="carousel-item">
+          <img src="images/BALENCIAGA.png" class="d-block w-100" alt="Slide 2">
+          <div class="carousel-caption d-none d-md-block"></div>
+        </div>
+        <!-- 3. slide -->
+        <div class="carousel-item">
+          <img src="images/RICKOWENSS.png" class="d-block w-100" alt="Slide 3">
+          <div class="carousel-caption d-none d-md-block"></div>
+        </div>
+        <!-- 4. slide -->
+        <div class="carousel-item">
+          <img src="images/MAISONMARGIELA.png" class="d-block w-100" alt="Slide 4">
+          <div class="carousel-caption d-none d-md-block"></div>
+        </div>
+        <!-- 5. slide -->
+        <div class="carousel-item">
+          <img src="images/JORDAN.png" class="d-block w-100" alt="Slide 5">
+          <div class="carousel-caption d-none d-md-block"></div>
         </div>
       </div>
-      <!-- 2. slide -->
-      <div class="carousel-item">
-        <img src="images/BALENCIAGA.png" class="d-block w-100" alt="Slide 2">
-        <div class="carousel-caption d-none d-md-block">
-          
-        </div>
-      </div>
-
-      <!-- 3. slide -->
-      <div class="carousel-item">
-        <img src="images/RICKOWENSS.png" class="d-block w-100" alt="Slide 3">
-        <div class="carousel-caption d-none d-md-block">
-          
-        </div>
-      </div>
-
-      <!-- 4. slide -->
-      <div class="carousel-item">
-        <img src="images/MAISONMARGIELA.png" class="d-block w-100" alt="Slide 4">
-        <div class="carousel-caption d-none d-md-block">
-          
-        </div>
-      </div>
-
-      <!-- 5. slide -->
-      <div class="carousel-item">
-        <img src="images/JORDAN.png" class="d-block w-100" alt="Slide 5">
-        <div class="carousel-caption d-none d-md-block">
-          
-        </div>
-      </div>
-
+      <!-- Vezérlők -->
+      <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Előző</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Következő</span>
+      </button>
     </div>
-    <!-- Vezérlők -->
-    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Előző</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Következő</span>
-    </button>
-  </div>
-</section>
-
+  </section>
 
   <!-- Legnépszerűbb termékek -->
   <section class="popular-products bg-light">
     <div class="container text-center">
       <h2 class="mb-4">Legnépszerűbb Termékek</h2>
       <div class="row g-4">
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card" onclick="window.location.href='product.html?id=8'" style="cursor: pointer;">
-            <img src="cipok/nike_dunk_low_sp_brazil_1.jpg" class="card-img-top" alt="Nike Dunk Low SP Brazil">
+            <img src="cipok/nike_dunk_low_sp_brazil_1.jpg" class="card-img-top img-fluid" alt="Nike Dunk Low SP Brazil">
             <div class="card-body">
               <h5 class="card-title">Nike Dunk Low SP Brazil</h5>
               <p class="card-text">94 990 Ft</p>
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card" onclick="window.location.href='product.html?id=5'" style="cursor: pointer;">
-            <img src="cipok/nike_dunk_low_photon_dust_1.jpg" class="card-img-top" alt="Nike Dunk Low Photon Dust">
+            <img src="cipok/nike_dunk_low_photon_dust_1.jpg" class="card-img-top img-fluid" alt="Nike Dunk Low Photon Dust">
             <div class="card-body">
               <h5 class="card-title">Nike Dunk Low Photon Dust</h5>
               <p class="card-text">69 990 Ft</p>
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card" onclick="window.location.href='product.html?id=14'" style="cursor: pointer;">
-            <img src="cipok/jordan_1_retro_low_og_sp_travis_scott_velvet_brown_1.jpg" class="card-img-top" alt="Travis Scott Velvet Brown">
+            <img src="cipok/jordan_1_retro_low_og_sp_travis_scott_velvet_brown_1.jpg" class="card-img-top img-fluid" alt="Travis Scott Velvet Brown">
             <div class="card-body">
               <h5 class="card-title">Travis Scott Velvet Brown</h5>
               <p class="card-text">249 990 Ft</p>
             </div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-6 col-md-3">
           <div class="card" onclick="window.location.href='product.html?id=10'" style="cursor: pointer;">
-            <img src="cipok/jordan_3_retro_black_cat_1.jpg" class="card-img-top" alt="Jordan 3 Retro Black Cat">
+            <img src="cipok/jordan_3_retro_black_cat_1.jpg" class="card-img-top img-fluid" alt="Jordan 3 Retro Black Cat">
             <div class="card-body">
               <h5 class="card-title">Jordan 3 Retro Black Cat</h5>
               <p class="card-text">104 990 Ft</p>
@@ -481,9 +511,6 @@ a.admin-link:hover {
       </div>
     </div>
   </section>
-
-  <!-- Vásárlói Vélemények -->
-  
 
   <!-- Partnereink -->
   <section class="partners py-5 bg-light">
@@ -519,12 +546,10 @@ a.admin-link:hover {
   <div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
-        <!-- Modal fejléc -->
         <div class="modal-header">
           <h5 class="modal-title" id="authModalLabel">Bejelentkezés</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Bezár"></button>
         </div>
-        <!-- Modal tartalom -->
         <div class="modal-body">
           <!-- Profil rész (ha bejelentkezve) -->
           <div id="profileSection">
@@ -572,10 +597,9 @@ a.admin-link:hover {
             <p class="mt-3 text-center">
               Még nincs fiókod? <span class="toggle-link" id="showRegister">Regisztráció</span>
             </p>
-              <!-- Admin link -->
-              <p class="text-center">
-                <a class="admin-link" href="admin-login.html">Admin</a>
-              </p>
+            <p class="text-center">
+              <a class="admin-link" href="admin-login.html">Admin</a>
+            </p>
           </div>
           <!-- Regisztrációs rész -->
           <div id="registerSection">
@@ -605,7 +629,6 @@ a.admin-link:hover {
             <p class="mt-3 text-center">
               Van már fiókod? <span class="toggle-link" id="showLogin">Bejelentkezés</span>
             </p>
-
           </div>
         </div>
       </div>
@@ -660,8 +683,6 @@ a.admin-link:hover {
         searchOverlay.classList.remove("active");
       });
 
-      // Keresés: feltételezzük, hogy /api/cipok/search?query=... 
-      // csak azokat adja vissza, amelyek tartalmazzák a keresett kifejezést
       searchInput.addEventListener("keyup", async () => {
         const query = searchInput.value.trim();
         searchResults.innerHTML = "";
@@ -762,15 +783,12 @@ a.admin-link:hover {
         });
       }
 
-      // Bejelentkezés (demo)
       const loginForm = document.getElementById("loginForm");
       loginForm.addEventListener("submit", function(e) {
         e.preventDefault();
         const email = document.getElementById("loginEmail").value;
         const password = document.getElementById("loginPassword").value;
         if (email && password) {
-          // Esetleg valós fetch("http://localhost:5000/api/felhasznalok/login")...
-          // Demo:
           const user = {
             felhasznalo_id: 1,
             vezeteknev: "Teszt",
@@ -786,7 +804,6 @@ a.admin-link:hover {
         }
       });
 
-      // Regisztráció – IDE KELL A VALÓS FETCH, hogy bekerüljön az adatbázisba
       const registerFormElem = document.getElementById("registerForm");
       registerFormElem.addEventListener("submit", function(e) {
         e.preventDefault();
@@ -795,13 +812,10 @@ a.admin-link:hover {
         const uname = document.getElementById("registerUsername").value;
         const email = document.getElementById("registerEmail").value;
         const pass = document.getElementById("registerPassword").value;
-        
         if (!vnev || !knev || !uname || !email || !pass) {
           alert("Kérlek, tölts ki minden mezőt!");
           return;
         }
-
-        // Valós API-hívás:
         fetch("http://localhost:5000/api/felhasznalok", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -830,7 +844,6 @@ a.admin-link:hover {
         });
       });
 
-      // Profil szerkesztése demo
       const editProfileButton = document.getElementById("editProfileButton");
       if (editProfileButton) {
         editProfileButton.addEventListener("click", () => {
@@ -860,7 +873,6 @@ a.admin-link:hover {
         document.getElementById("profileUsername").textContent = loggedInUser.felhasznalonev;
       });
 
-      // Kijelentkezés
       const logoutButton = document.getElementById("logoutButton");
       logoutButton.addEventListener("click", function() {
         localStorage.removeItem("loggedInUser");
@@ -907,7 +919,6 @@ a.admin-link:hover {
           cartItemsContainer.appendChild(div);
         });
       }
-      // addToCart(...) demo függvény pl. a product oldalon
     });
   </script>
 </body>

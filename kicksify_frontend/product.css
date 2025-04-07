@@ -163,6 +163,13 @@ body {
     transition: right 0.3s ease-in-out;
     z-index: 2000;
   }
+  
+  /* Mobil nézet */
+  @media (max-width: 768px) {
+    .side-search {
+      width: 80%;
+    }
+  }
   .side-search.active {
     right: 0;
   }
