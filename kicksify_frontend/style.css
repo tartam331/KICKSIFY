@@ -1,3 +1,362 @@
+/* ALAPBEÁLLÍTÁSOK */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+/* Csak a "Legnépszerűbb termékek" container legyen fehér */
+.popular-products .container.text-center {
+  background-color: white;
+}
+
+/* NAVBAR */
+.navbar {
+  background-color: rgba(0,0,0,0.8);
+  padding: 15px 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+.navbar .navbar-brand {
+  font-size: 1.5rem;
+  color: white;
+  font-weight: bold;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-transform: uppercase;
+}
+.menu-toggle {
+  font-size: 1.5rem;
+  color: white;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+.navbar-icons {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.navbar-icons i {
+  color: white;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+/* BAL OLDALI PANEL (CIPŐK & KOLLEKCIÓK) */
+.left-panel {
+  position: fixed;
+  top: 0;
+  left: -400px;
+  width: 400px;
+  height: 100%;
+  background-color: #fff;
+  box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+  padding: 10px;
+  transition: left 0.3s ease-in-out;
+  z-index: 1500;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.left-panel.active {
+  left: 0;
+}
+.left-panel-header {
+  display: flex;
+  justify-content: flex-end;
+}
+.left-panel-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #000;
+}
+.left-panel-content {
+  margin-top: 3px;
+}
+.left-panel-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+.left-panel-list,
+.left-panel-collections ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.left-panel-list li,
+.left-panel-collections li {
+  margin-bottom: 40px;
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+.left-panel-list li a,
+.left-panel-collections li a {
+  text-decoration: none;
+  color: #000;
+}
+.left-panel-list li a:hover,
+.left-panel-collections li a:hover {
+  color: #111;
+}
+.left-panel-collections {
+  margin-top: 30px;
+}
+.left-panel-collections h3 {
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+}
+.left-panel-bottom {
+  text-align: center;
+  margin-top: 20px;
+}
+.left-panel-bottom button {
+  background-color: white;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+/* KERESŐPANEL (jobbról csúszó) */
+.side-search {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 30%;
+  height: 100%;
+  background-color: white;
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+  padding: 30px;
+  transition: right 0.3s ease-in-out;
+  z-index: 2000;
+}
+.side-search.active {
+  right: 0;
+}
+.search-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+#sideSearchInput {
+  width: 90%;
+  border: none;
+  border-bottom: 2px solid black;
+  padding: 10px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  outline: none;
+  color: black;
+}
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: black;
+  cursor: pointer;
+}
+.search-results {
+  margin-top: 20px;
+  overflow-y: auto;
+  max-height: 80vh;
+}
+.search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  z-index: 1050;
+}
+.search-overlay.active {
+  display: block;
+}
+
+.hero-section {
+position: relative;
+height: 100vh;
+background-color: #000;
+overflow: hidden;
+margin-bottom: 50px; /* Ez a margin biztosítja, hogy a következő szekció (pl. Legnépszerűbb termékek) ne fedi a slideshow-t */
+}
+
+.hero-section .carousel-item img {
+object-fit: cover;
+height: 100vh;
+width: 100%;
+display: block;
+}
+
+/* Responsive módosítások: tablet és mobil eszközökön csökkentjük a magasságot és a margin-bottom értéket */
+@media (max-width: 768px) {
+.hero-section {
+height: 80vh;
+margin-bottom: 40px;
+}
+.hero-section .carousel-item img {
+height: 80vh;
+}
+}
+
+@media (max-width: 480px) {
+.hero-section {
+height: 60vh;
+margin-bottom: 30px;
+}
+.hero-section .carousel-item img {
+height: 60vh;
+}
+}
+
+
+/* EGYÉB RÉSZEK */
+.popular-products,
+.customer-reviews,
+.partners,
+.newsletter {
+  padding: 60px 0;
+}
+footer.footer {
+  background-color: #222;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  margin-top: 0;
+}
+
+/* AUTH MODAL */
+.modal-content {
+  background-color: #000;
+  color: #fff;
+}
+.modal-header .modal-title {
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+.btn-close.btn-close-white {
+  filter: invert(1);
+}
+.form-label {
+  color: #fff;
+}
+.form-control {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+}
+.form-control:focus {
+  background-color: #444;
+  color: #fff;
+}
+.btn-primary {
+  background-color: #fff;
+  color: #000;
+  border: none;
+}
+.btn-primary:hover {
+  background-color: #ddd;
+  color: #000;
+}
+.toggle-link {
+  color: #fff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+#registerSection,
+#profileSection,
+#editProfileSection {
+  display: none;
+}
+
+/* KOSÁRPANEL */
+.cart-modal {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 400px;
+  height: 100%;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.3);
+  transition: right 0.3s ease-in-out;
+  z-index: 1000;
+}
+.cart-modal.active {
+  right: 0;
+}
+.cart-content {
+  position: relative;
+  padding: 20px;
+}
+.cart-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: black;
+}
+.cart-close-btn:hover {
+  color: grey;
+}
+#clear-cart {
+  background-color: black;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+#paymentBtn {
+  background-color: green;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+/* KÁRTYÁK */
+.card-img-top {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* RESZPONZÍV MÓDOSÍTÁSOK */
+@media (max-width: 768px) {
+  .side-search {
+    width: 80%;
+  }
+  /* Ha mobilon a 600px túl nagy, csökkentsd például 400px-re */
+  .hero-section {
+    height: 400px;
+  }
+}
+@media (max-width: 400px) {
+  .side-search,
+  .left-panel,
+  .cart-modal {
+    width: 100%;
+  }
+}
+
+
 .container text-center {
 
   background-color: white;

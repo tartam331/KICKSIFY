@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function() { 
   // Csak akkor futtatjuk a kódot, ha az adminisztrációs oldalon vagyunk.
   const adminTabs = document.querySelectorAll("#adminTabs .nav-link");
   const tabContent = document.getElementById("tabContent");
@@ -869,9 +869,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (meretekContainer) meretekContainer.style.display = "none";
   }
 
-  // ============================================================
-  // EXKLUZÍV CIPŐK KEZELÉSE
-  // ============================================================
+  // ----- EXKLUZÍV CIPŐK: MÉRETEK KEZELÉSE -----
   async function loadExkluziv() {
     try {
       const res = await fetch(`/api/exkluziv_cipok`);
@@ -945,7 +943,7 @@ document.addEventListener("DOMContentLoaded", function() {
         </form>
       </div>
       <div id="exArContainer" style="display:none;"></div>
-      <!-- A hiányzó méretek kezeléséhez exkluzív cipők esetében is beépítünk egy közös container-t -->
+      <!-- Közös container a exkluzív méreteknek -->
       <div id="meretekContainer" style="display:none;"></div>
     `;
     tabContent.innerHTML = html;
@@ -1051,15 +1049,6 @@ document.addEventListener("DOMContentLoaded", function() {
       console.error(err);
       alert("Hiba történt az exkluzív cipő törlésekor");
     }
-  }
-
-  function cancelAddExkluziv() {
-    const addContainer = document.getElementById("addExkluzivContainer");
-    if (addContainer) addContainer.style.display = "none";
-  }
-  function cancelEditExkluziv() {
-    const editContainer = document.getElementById("editExkluzivContainer");
-    if (editContainer) editContainer.style.display = "none";
   }
 
   // ----- EXKLUZÍV CIPŐK: MÉRETEK KEZELÉSE -----
@@ -1323,10 +1312,10 @@ document.addEventListener("DOMContentLoaded", function() {
     ar = parseFloat(ar);
     const datum = document.getElementById("newExDatum").value;
     try {
-      const res = await fetch(`/api/arvaltozas`, {
+      const res = await fetch(`/api/exkluziv_cipok/${exId}/arvaltozas`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ exkluziv_id: exId, datum, ar })
+        body: JSON.stringify({ datum, ar })
       });
       const data = await res.json();
       if (data.success) {
@@ -1437,6 +1426,7 @@ document.addEventListener("DOMContentLoaded", function() {
   window.showCipokArvaltozas = showCipokArvaltozas;
   window.editExkluziv = editExkluziv;
   window.deleteExkluziv = deleteExkluziv;
+  window.loadExkluziv = loadExkluziv;
   window.showExkluzivMeretek = showExkluzivMeretek;
   window.editExMeret = editExMeret;
   window.deleteExMeret = deleteExMeret;
@@ -1452,4 +1442,5 @@ document.addEventListener("DOMContentLoaded", function() {
   window.editNormMeret = editNormMeret;
   window.deleteNormMeret = deleteNormMeret;
   window.cancelEditNormMeret = cancelEditNormMeret;
+  window.deleteCipokAr = deleteCipokAr;
 });
