@@ -34,7 +34,6 @@ document.addEventListener("DOMContentLoaded", function() {
   // Alapértelmezett: betöltjük a felhasználókat
   loadUsers();
 
-
   // ============================================================
   // FELHASZNÁLÓK KEZELÉSE
   // ============================================================
@@ -123,7 +122,6 @@ document.addEventListener("DOMContentLoaded", function() {
     `;
     tabContent.innerHTML = html;
 
-    // Csatoljuk az eseménykezelőket, ha léteznek az elemek.
     const addUserForm = document.getElementById("addUserForm");
     if (addUserForm) {
       addUserForm.addEventListener("submit", addUser);
@@ -201,7 +199,6 @@ document.addEventListener("DOMContentLoaded", function() {
       });
       const data = await res.json();
       if (data.success) {
-        // Frissítjük a sort
         const resUser = await fetch(`/api/felhasznalok/${userId}`);
         const updatedUser = await resUser.json();
         updateUserRow(updatedUser);
@@ -254,7 +251,6 @@ document.addEventListener("DOMContentLoaded", function() {
   function cancelEditUser() {
     document.getElementById("editUserContainer").style.display = "none";
   }
-
 
   // ============================================================
   // NORMAL CIPŐK KEZELÉSE (Márkák, lista, méretek, ártörténet)
@@ -380,11 +376,11 @@ document.addEventListener("DOMContentLoaded", function() {
           <button type="button" class="btn btn-secondary" onclick="cancelEditCipo()">Mégse</button>
         </form>
       </div>
-      <!-- Méretek és ártörténet konténer -->
+      <!-- Normál cipők esetén itt van a méretekhez tartozó container -->
       <div id="meretekContainer" style="display:none;"></div>
     `;
     document.getElementById("cipokContainer").innerHTML = html;
-    // Események csatolása
+
     const addCipoBtn = document.getElementById("addCipoBtn");
     if (addCipoBtn) {
       addCipoBtn.addEventListener("click", () => {
@@ -418,7 +414,6 @@ document.addEventListener("DOMContentLoaded", function() {
       });
       const data = await res.json();
       if (data.success) {
-        // Ha van márka szűrő (brandSelect) akkor újratöltjük a jelenlegi márkát; különben az összes cipőt.
         const brandSelect = document.getElementById("brandSelect");
         const currentBrand = brandSelect ? brandSelect.value : "";
         loadCipok(currentBrand);
@@ -950,6 +945,8 @@ document.addEventListener("DOMContentLoaded", function() {
         </form>
       </div>
       <div id="exArContainer" style="display:none;"></div>
+      <!-- A hiányzó méretek kezeléséhez exkluzív cipők esetében is beépítünk egy közös container-t -->
+      <div id="meretekContainer" style="display:none;"></div>
     `;
     tabContent.innerHTML = html;
     const addExkluzivBtn = document.getElementById("addExkluzivBtn");
@@ -1169,7 +1166,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
   async function editExMeret(meretId, exId) {
     try {
-      // Feltételezzük, hogy az exkluzív méretekhez tartozó GET végpont: /api/exkluziv_cipok/meretek/:meret_id
       const res = await fetch(`/api/exkluziv_cipok/meretek/${meretId}`);
       const meretObj = await res.json();
       if (meretObj.error) {
@@ -1432,9 +1428,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 
-  // ============================================================
   // Globális függvények exportálása, hogy inline onclick-ok elérjék őket
-  // ============================================================
   window.editUser = editUser;
   window.deleteUser = deleteUser;
   window.editCipo = editCipo;
