@@ -222,7 +222,7 @@ app.get("/api/cipok", (req, res) => {
   });
 });
 
-// ÚJ: GET cipők keresése
+// GET cipők keresése (részleges egyezés a márka és modell mezőkben)
 app.get("/api/cipok/search", (req, res) => {
   const queryParam = req.query.query;
   if (!queryParam) {
@@ -231,7 +231,6 @@ app.get("/api/cipok/search", (req, res) => {
   const lowerQuery = queryParam.toLowerCase();
   let sql, values;
   if (lowerQuery === "nike") {
-    // Ha pontosan "nike" a keresési kifejezés, akkor kizárólag a Nike márkájú cipőket adja vissza
     sql = `
       SELECT c.*,
              GROUP_CONCAT(m.meret ORDER BY m.meret ASC SEPARATOR ',') AS meretek
@@ -242,7 +241,6 @@ app.get("/api/cipok/search", (req, res) => {
     `;
     values = [lowerQuery];
   } else {
-    // Egyéb esetben a marka vagy modell oszlopban keresünk (részleges egyezés, case-insensitive)
     sql = `
       SELECT c.*,
              GROUP_CONCAT(m.meret ORDER BY m.meret ASC SEPARATOR ',') AS meretek
@@ -278,11 +276,11 @@ app.get("/api/cipok/:id", (req, res) => {
   });
 });
 
-// GET ártörténet – a termékoldalon a charthoz
+// GET ártörténet – a normál cipők esetében
 app.get("/api/cipok/:id/arvaltozas", (req, res) => {
   const cipoId = req.params.id;
   const query = `
-    SELECT datum, ar
+    SELECT arvaltozas_id, datum, ar
     FROM arvaltozas
     WHERE cipo_id = ?
     ORDER BY datum ASC
@@ -296,7 +294,7 @@ app.get("/api/cipok/:id/arvaltozas", (req, res) => {
   });
 });
 
-// GET méretek – a normál cipők esetében a "meretek" tábla csak a "meret" mezőt tartalmazza
+// GET méretek – normál cipők esetében
 app.get("/api/cipok/:id/meretek", (req, res) => {
   const cipoId = req.params.id;
   db.query("SELECT meret FROM meretek WHERE cipo_id = ?", [cipoId], (err, results) => {
@@ -355,6 +353,8 @@ app.delete("/api/cipok/:id", (req, res) => {
 /* =========================
    EXKLUZÍV CIPŐK
 ========================= */
+
+// GET összes exkluzív cipő
 app.get("/api/exkluziv_cipok", (req, res) => {
   db.query("SELECT * FROM exkluziv_cipok", (err, results) => {
     if (err) {
@@ -365,6 +365,7 @@ app.get("/api/exkluziv_cipok", (req, res) => {
   });
 });
 
+// GET egy exkluzív cipő
 app.get("/api/exkluziv_cipok/:id", (req, res) => {
   const id = req.params.id;
   db.query("SELECT * FROM exkluziv_cipok WHERE exkluziv_id = ?", [id], (err, rows) => {
@@ -377,6 +378,7 @@ app.get("/api/exkluziv_cipok/:id", (req, res) => {
   });
 });
 
+// POST új exkluzív cipő
 app.post("/api/exkluziv_cipok", (req, res) => {
   const { marka, modell, ar, leiras } = req.body;
   const sql = "INSERT INTO exkluziv_cipok (marka, modell, ar, leiras, szin, cikkszam, kep, fizetes_szallitas) VALUES (?,?,?,?,'Fekete','EX123','default.jpg','Alap szöveg')";
@@ -389,6 +391,7 @@ app.post("/api/exkluziv_cipok", (req, res) => {
   });
 });
 
+// PUT exkluzív cipő módosítás
 app.put("/api/exkluziv_cipok/:id", (req, res) => {
   const id = req.params.id;
   const { marka, modell, ar, leiras } = req.body;
@@ -402,6 +405,7 @@ app.put("/api/exkluziv_cipok/:id", (req, res) => {
   });
 });
 
+// DELETE exkluzív cipő
 app.delete("/api/exkluziv_cipok/:id", (req, res) => {
   const id = req.params.id;
   db.query("DELETE FROM exkluziv_cipok WHERE exkluziv_id = ?", [id], (err) => {
@@ -413,64 +417,61 @@ app.delete("/api/exkluziv_cipok/:id", (req, res) => {
   });
 });
 
-/* =========================
-   MÉRETEK (Normál cipőkhez)
-========================= */
-app.get("/api/meretek", (req, res) => {
-  db.query("SELECT * FROM meretek", (err, results) => {
+// GET exkluzív cipő méretek
+app.get("/api/exkluziv_cipok/:id/meretek", (req, res) => {
+  const exId = req.params.id;
+  db.query("SELECT meret_id, keszlet FROM exkluziv_cipo_meretek WHERE exkluziv_id = ?", [exId], (err, results) => {
     if (err) {
-      console.error("❌ Méretek lekérdezési hiba:", err);
-      return res.status(500).json({ error: "DB error" });
+      console.error("❌ Exkluzív cipő méretek lekérdezési hiba:", err);
+      return res.status(500).json({ error: "Hiba az exkluzív méretek lekérdezésekor" });
     }
     res.json(results);
   });
 });
 
-app.get("/api/meretek/:id", (req, res) => {
-  const meretId = req.params.id;
-  db.query("SELECT * FROM meretek WHERE meret_id = ?", [meretId], (err, rows) => {
-    if (err) {
-      console.error("❌ Méret GET hiba:", err);
-      return res.status(500).json({ error: "DB error" });
-    }
-    if (rows.length === 0) return res.status(404).json({ error: "Nincs ilyen méret" });
-    res.json(rows[0]);
-  });
-});
-
-app.post("/api/meretek", (req, res) => {
-  const { cipo_id, meret } = req.body;
-  if (!cipo_id || !meret) {
+// POST új exkluzív cipő méret
+app.post("/api/exkluziv_cipok/:id/meretek", (req, res) => {
+  const exId = req.params.id;
+  const { meret, keszlet } = req.body;
+  if (!meret || (keszlet === undefined || keszlet === null)) {
     return res.status(400).json({ error: "Hiányzó adatok" });
   }
-  const sql = "INSERT INTO meretek (cipo_id, meret) VALUES (?,?)";
-  db.query(sql, [cipo_id, meret], (err, result) => {
+  const sql = "INSERT INTO exkluziv_cipo_meretek (exkluziv_id, meret_id, keszlet) VALUES (?, ?, ?)";
+  // Feltételezzük, hogy a formban megadott "meret" egy numerikus érték, melyet itt a meret_id-ként tárolunk
+  db.query(sql, [exId, meret, keszlet], (err, result) => {
     if (err) {
-      console.error("❌ Méret létrehozási hiba:", err);
-      return res.status(500).json({ error: "DB error" });
-    }
-    res.json({ success: true, newId: result.insertId });
-  });
-});
-
-app.put("/api/meretek/:id", (req, res) => {
-  const meretId = req.params.id;
-  const { cipo_id, meret } = req.body;
-  const sql = "UPDATE meretek SET cipo_id = ?, meret = ? WHERE meret_id = ?";
-  db.query(sql, [cipo_id, meret, meretId], (err) => {
-    if (err) {
-      console.error("❌ Méret update hiba:", err);
+      console.error("❌ Exkluzív méret létrehozási hiba:", err);
       return res.status(500).json({ error: "DB error" });
     }
     res.json({ success: true });
   });
 });
 
-app.delete("/api/meretek/:id", (req, res) => {
-  const meretId = req.params.id;
-  db.query("DELETE FROM meretek WHERE meret_id = ?", [meretId], (err) => {
+// PUT exkluzív cipő méret módosítás
+app.put("/api/exkluziv_cipok/meretek/:meret_id", (req, res) => {
+  const meretId = req.params.meret_id;
+  const { exkluziv_id, meret, keszlet } = req.body;
+  const sql = "UPDATE exkluziv_cipo_meretek SET meret_id = ?, keszlet = ? WHERE exkluziv_id = ? AND meret_id = ?";
+  db.query(sql, [meret, keszlet, exkluziv_id, meretId], (err) => {
     if (err) {
-      console.error("❌ Méret törlés hiba:", err);
+      console.error("❌ Exkluzív méret update hiba:", err);
+      return res.status(500).json({ error: "DB error" });
+    }
+    res.json({ success: true });
+  });
+});
+
+// DELETE exkluzív cipő méret (a exkluzív cipő azonosítója a query paraméterben kell, hogy legyen)
+app.delete("/api/exkluziv_cipok/meretek/:meret_id", (req, res) => {
+  const meretId = req.params.meret_id;
+  const exkluziv_id = req.query.exkluziv_id;
+  if (!exkluziv_id) {
+    return res.status(400).json({ error: "Hiányzó exkluzív cipő azonosító" });
+  }
+  const sql = "DELETE FROM exkluziv_cipo_meretek WHERE exkluziv_id = ? AND meret_id = ?";
+  db.query(sql, [exkluziv_id, meretId], (err) => {
+    if (err) {
+      console.error("❌ Exkluzív méret törlés hiba:", err);
       return res.status(500).json({ error: "DB error" });
     }
     res.json({ success: true });
@@ -480,7 +481,67 @@ app.delete("/api/meretek/:id", (req, res) => {
 /* =========================
    ÁRTÖRTÉNET
 ========================= */
-// Ez a végpont már fent definiált: /api/cipok/:id/arvaltozas
+
+// GET ártörténet normál cipőkhöz már fent van: /api/cipok/:id/arvaltozas
+
+// GET ártörténet exkluzív cipőkhöz
+app.get("/api/exkluziv_cipok/:id/arvaltozas", (req, res) => {
+  const exId = req.params.id;
+  const query = `
+    SELECT arvaltozas_id, datum, ar
+    FROM arvaltozas
+    WHERE exkluziv_id = ?
+    ORDER BY datum ASC
+  `;
+  db.query(query, [exId], (err, results) => {
+    if (err) {
+      console.error("❌ Exkluzív ártörténet lekérdezési hiba:", err);
+      return res.status(500).json({ error: "Hiba az exkluzív ártörténet lekérdezésekor" });
+    }
+    res.json(results);
+  });
+});
+
+// POST új ártörténeti bejegyzés (normál és exkluzív cipők esetén)
+app.post("/api/arvaltozas", (req, res) => {
+  const { cipo_id, exkluziv_id, datum, ar } = req.body;
+  const sql = "INSERT INTO arvaltozas (cipo_id, exkluziv_id, datum, ar) VALUES (?, ?, ?, ?)";
+  // Ha normál cipőről van szó, exkluziv_id legyen null, ha exkluzív - akkor cipo_id legyen null.
+  db.query(sql, [cipo_id || null, exkluziv_id || null, datum, ar], (err, result) => {
+    if(err) {
+      console.error("❌ Ártörténet létrehozási hiba:", err);
+      return res.status(500).json({ error: "DB error" });
+    }
+    res.json({ success: true, newId: result.insertId, exkluziv_id: exkluziv_id || null });
+  });
+});
+
+// PUT ártörténet módosítás
+app.put("/api/arvaltozas/:id", (req, res) => {
+  const arId = req.params.id;
+  const { datum, ar } = req.body;
+  const sql = "UPDATE arvaltozas SET datum = ?, ar = ? WHERE arvaltozas_id = ?";
+  db.query(sql, [datum, ar, arId], (err) => {
+    if(err) {
+      console.error("❌ Ártörténet update hiba:", err);
+      return res.status(500).json({ error: "DB error" });
+    }
+    res.json({ success: true });
+  });
+});
+
+// DELETE ártörténet
+app.delete("/api/arvaltozas/:id", (req, res) => {
+  const arId = req.params.id;
+  const sql = "DELETE FROM arvaltozas WHERE arvaltozas_id = ?";
+  db.query(sql, [arId], (err) => {
+    if(err) {
+      console.error("❌ Ártörténet törlés hiba:", err);
+      return res.status(500).json({ error: "DB error" });
+    }
+    res.json({ success: true });
+  });
+});
 
 /* =========================
    STATIKUS FRONTEND KISZOLGÁLÁS
