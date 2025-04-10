@@ -1,45 +1,37 @@
-document.addEventListener("DOMContentLoaded", function() { 
-  // Csak akkor futtatjuk a kódot, ha az adminisztrációs oldalon vagyunk.
+document.addEventListener("DOMContentLoaded", function() {
+  // Csak akkor futtatjuk, ha az admin felület betöltődött
   const adminTabs = document.querySelectorAll("#adminTabs .nav-link");
   const tabContent = document.getElementById("tabContent");
-
   if (!tabContent) {
     console.warn("Nincs tabContent elem az oldalon – ez a kód csak adminisztrációs oldalon fut.");
     return;
   }
 
-  // Globális változók a normál és exkluzív cipők aktuális azonosítójához
+  // Globális változók a normál és exkluzív cipők aktuális azonosítóihoz
   window.currentCipoId = null;
   window.currentExId = null;
 
   // --- TAB VÁLTÁS ---
-  if (adminTabs.length) {
-    adminTabs.forEach(tab => {
-      tab.addEventListener("click", function(e) {
-        e.preventDefault();
-        adminTabs.forEach(t => t.classList.remove("active"));
-        this.classList.add("active");
-        const tabName = this.getAttribute("data-tab");
-        if (tabName === "users") {
-          loadUsers();
-        } else if (tabName === "cipok") {
-          loadCipokBrands();
-        } else if (tabName === "exkluziv") {
-          loadExkluziv();
-        }
-      });
+  adminTabs.forEach(tab => {
+    tab.addEventListener("click", function(e) {
+      e.preventDefault();
+      adminTabs.forEach(t => t.classList.remove("active"));
+      this.classList.add("active");
+      const tabName = this.getAttribute("data-tab");
+      if (tabName === "users") loadUsers();
+      else if (tabName === "cipok") loadCipokBrands();
+      else if (tabName === "exkluziv") loadExkluziv();
     });
-  }
-
-  // Alapértelmezett: betöltjük a felhasználókat
+  });
+  // Alapértelmezett: felhasználók betöltése
   loadUsers();
 
-  // ============================================================
-  // FELHASZNÁLÓK KEZELÉSE
-  // ============================================================
+  /* =========================
+     FELHASZNÁLÓK KEZELÉSE
+  ========================= */
   async function loadUsers() {
     try {
-      const res = await fetch(`/api/felhasznalok`);
+      const res = await fetch("/api/felhasznalok");
       const users = await res.json();
       renderUsers(users);
     } catch (err) {
@@ -121,15 +113,8 @@ document.addEventListener("DOMContentLoaded", function() {
       </div>
     `;
     tabContent.innerHTML = html;
-
-    const addUserForm = document.getElementById("addUserForm");
-    if (addUserForm) {
-      addUserForm.addEventListener("submit", addUser);
-    }
-    const editUserForm = document.getElementById("editUserForm");
-    if (editUserForm) {
-      editUserForm.addEventListener("submit", updateUser);
-    }
+    document.getElementById("addUserForm").addEventListener("submit", addUser);
+    document.getElementById("editUserForm").addEventListener("submit", updateUser);
   }
 
   async function addUser(e) {
@@ -143,17 +128,14 @@ document.addEventListener("DOMContentLoaded", function() {
       szerep: document.getElementById("newSzerep").value
     };
     try {
-      const res = await fetch(`/api/felhasznalok`, {
+      const res = await fetch("/api/felhasznalok", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newData)
       });
       const data = await res.json();
-      if (data.success) {
-        loadUsers();
-      } else {
-        alert("Hiba a felhasználó hozzáadásakor");
-      }
+      if (data.success) loadUsers();
+      else alert("Hiba a felhasználó hozzáadásakor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt a felhasználó hozzáadásakor");
@@ -164,7 +146,7 @@ document.addEventListener("DOMContentLoaded", function() {
     try {
       const res = await fetch(`/api/felhasznalok/${userId}`);
       const user = await res.json();
-      if(user.error) {
+      if (user.error) {
         alert("Nincs ilyen felhasználó");
         return;
       }
@@ -203,9 +185,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const updatedUser = await resUser.json();
         updateUserRow(updatedUser);
         document.getElementById("editUserContainer").style.display = "none";
-      } else {
-        alert("Hiba a felhasználó frissítésekor");
-      }
+      } else alert("Hiba a felhasználó frissítésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt a felhasználó frissítésekor");
@@ -239,9 +219,7 @@ document.addEventListener("DOMContentLoaded", function() {
       if (data.success) {
         const row = document.getElementById(`user-${userId}`);
         if (row) row.remove();
-      } else {
-        alert("Hiba a felhasználó törlésekor");
-      }
+      } else alert("Hiba a felhasználó törlésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt a felhasználó törlésekor");
@@ -252,12 +230,12 @@ document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("editUserContainer").style.display = "none";
   }
 
-  // ============================================================
-  // NORMAL CIPŐK KEZELÉSE (Márkák, lista, méretek, ártörténet)
-  // ============================================================
+  /* =========================
+     NORMAL CIPŐK KEZELÉSE (Márkák, lista, méretek, ártörténet)
+  ========================= */
   async function loadCipokBrands() {
     try {
-      const res = await fetch(`/api/cipok/brands`);
+      const res = await fetch("/api/cipok/brands");
       const brands = await res.json();
       renderCipokBrandFilter(brands);
     } catch (err) {
@@ -281,20 +259,15 @@ document.addEventListener("DOMContentLoaded", function() {
     tabContent.innerHTML = html;
     const brandSelect = document.getElementById("brandSelect");
     if (brandSelect) {
-      brandSelect.addEventListener("change", function() {
-        const selected = brandSelect.value;
-        loadCipok(selected);
-      });
+      brandSelect.addEventListener("change", () => loadCipok(brandSelect.value));
       loadCipok(brandSelect.value);
     }
   }
 
   async function loadCipok(brand = "") {
     try {
-      let url = `/api/cipok`;
-      if (brand) {
-        url += `?marka=${encodeURIComponent(brand)}`;
-      }
+      let url = "/api/cipok";
+      if (brand) url += `?marka=${encodeURIComponent(brand)}`;
       const res = await fetch(url);
       const cipok = await res.json();
       renderCipokTable(cipok);
@@ -354,9 +327,7 @@ document.addEventListener("DOMContentLoaded", function() {
           <div class="mb-2"><input type="text" class="form-control" id="newModell" placeholder="Modell" required></div>
           <div class="mb-2"><input type="number" class="form-control" id="newAr" placeholder="Ár" required></div>
           <div class="mb-2"><textarea class="form-control" id="newLeiras" placeholder="Leírás" required></textarea></div>
-          <div class="mb-2">
-            <input type="text" class="form-control" id="newKep" placeholder="Képek (pl. balenciaga1.jpg, balenciaga2.jpg)">
-          </div>
+          <div class="mb-2"><input type="text" class="form-control" id="newKep" placeholder="Képek (pl. balenciaga1.jpg, balenciaga2.jpg)"></div>
           <button type="submit" class="btn btn-success">Mentés</button>
           <button type="button" class="btn btn-secondary" onclick="cancelAddCipo()">Mégse</button>
         </form>
@@ -369,32 +340,19 @@ document.addEventListener("DOMContentLoaded", function() {
           <div class="mb-2"><input type="text" class="form-control" id="editModell" placeholder="Modell" required></div>
           <div class="mb-2"><input type="number" class="form-control" id="editAr" placeholder="Ár" required></div>
           <div class="mb-2"><textarea class="form-control" id="editLeiras" placeholder="Leírás" required></textarea></div>
-          <div class="mb-2">
-            <input type="text" class="form-control" id="editKep" placeholder="Képek (pl. balenciaga1.jpg, balenciaga2.jpg)">
-          </div>
+          <div class="mb-2"><input type="text" class="form-control" id="editKep" placeholder="Képek (pl. balenciaga1.jpg, balenciaga2.jpg)"></div>
           <button type="submit" class="btn btn-primary">Mentés</button>
           <button type="button" class="btn btn-secondary" onclick="cancelEditCipo()">Mégse</button>
         </form>
       </div>
-      <!-- Normál cipők esetén itt van a méretekhez tartozó container -->
       <div id="meretekContainer" style="display:none;"></div>
     `;
     document.getElementById("cipokContainer").innerHTML = html;
-
-    const addCipoBtn = document.getElementById("addCipoBtn");
-    if (addCipoBtn) {
-      addCipoBtn.addEventListener("click", () => {
-        document.getElementById("addCipoContainer").style.display = "block";
-      });
-    }
-    const addCipoForm = document.getElementById("addCipoForm");
-    if (addCipoForm) {
-      addCipoForm.addEventListener("submit", addCipo);
-    }
-    const editCipoForm = document.getElementById("editCipoForm");
-    if (editCipoForm) {
-      editCipoForm.addEventListener("submit", updateCipo);
-    }
+    document.getElementById("addCipoBtn").addEventListener("click", () => {
+      document.getElementById("addCipoContainer").style.display = "block";
+    });
+    document.getElementById("addCipoForm").addEventListener("submit", addCipo);
+    document.getElementById("editCipoForm").addEventListener("submit", updateCipo);
   }
 
   async function addCipo(e) {
@@ -407,7 +365,7 @@ document.addEventListener("DOMContentLoaded", function() {
       kep: document.getElementById("newKep").value.trim()
     };
     try {
-      const res = await fetch(`/api/cipok`, {
+      const res = await fetch("/api/cipok", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newData)
@@ -417,9 +375,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const brandSelect = document.getElementById("brandSelect");
         const currentBrand = brandSelect ? brandSelect.value : "";
         loadCipok(currentBrand);
-      } else {
-        alert("Hiba a cipő hozzáadásakor");
-      }
+      } else alert("Hiba a cipő hozzáadásakor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt a cipő hozzáadásakor");
@@ -465,9 +421,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const updatedCipo = await resCipo.json();
         updateCipoRow(updatedCipo);
         document.getElementById("editCipoContainer").style.display = "none";
-      } else {
-        alert("Hiba a cipő frissítésekor");
-      }
+      } else alert("Hiba a cipő frissítésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt a cipő frissítésekor");
@@ -513,9 +467,7 @@ document.addEventListener("DOMContentLoaded", function() {
           const currentBrand = brandSelect ? brandSelect.value : "";
           loadCipok(currentBrand);
         }
-      } else {
-        alert("Hiba a cipő törlésekor");
-      }
+      } else alert("Hiba a cipő törlésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt a cipő törlésekor");
@@ -591,33 +543,24 @@ document.addEventListener("DOMContentLoaded", function() {
     const meretekContainer = document.getElementById("meretekContainer");
     meretekContainer.innerHTML = html;
     meretekContainer.style.display = "block";
-    const addNormMeretForm = document.getElementById("addNormMeretForm");
-    if (addNormMeretForm) {
-      addNormMeretForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-        addNormMeret(cipoId);
-      });
-    }
-    const editNormMeretForm = document.getElementById("editNormMeretForm");
-    if (editNormMeretForm) {
-      editNormMeretForm.addEventListener("submit", updateNormMeret);
-    }
+    document.getElementById("addNormMeretForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      addNormMeret(cipoId);
+    });
+    document.getElementById("editNormMeretForm").addEventListener("submit", updateNormMeret);
   }
 
   async function addNormMeret(cipoId) {
     const meret = document.getElementById("newNormMeret").value;
     try {
-      const res = await fetch(`/api/meretek`, {
+      const res = await fetch("/api/meretek", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ cipo_id: cipoId, meret })
       });
       const data = await res.json();
-      if (data.success) {
-        showCipoMeretek(cipoId);
-      } else {
-        alert("Hiba a méret hozzáadásakor");
-      }
+      if (data.success) showCipoMeretek(cipoId);
+      else alert("Hiba a méret hozzáadásakor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt a méret hozzáadásakor");
@@ -655,9 +598,7 @@ document.addEventListener("DOMContentLoaded", function() {
       if (data.success) {
         document.getElementById("editNormMeretContainer").style.display = "none";
         showCipoMeretek(window.currentCipoId);
-      } else {
-        alert("Hiba a méret frissítésekor");
-      }
+      } else alert("Hiba a méret frissítésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt a méret frissítésekor");
@@ -669,11 +610,8 @@ document.addEventListener("DOMContentLoaded", function() {
     try {
       const res = await fetch(`/api/meretek/${meretId}`, { method: "DELETE" });
       const data = await res.json();
-      if (data.success) {
-        showCipoMeretek(cipoId);
-      } else {
-        alert("Hiba a méret törlésekor");
-      }
+      if (data.success) showCipoMeretek(cipoId);
+      else alert("Hiba a méret törlésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt a méret törlésekor");
@@ -759,20 +697,14 @@ document.addEventListener("DOMContentLoaded", function() {
       </div>
       <button class="btn btn-light mt-3" onclick="closeCipokArvaltozas()">Vissza</button>
     `;
-    const meretekContainer = document.getElementById("meretekContainer");
-    meretekContainer.innerHTML = html;
-    meretekContainer.style.display = "block";
-    const addCipokArForm = document.getElementById("addCipokArForm");
-    if (addCipokArForm) {
-      addCipokArForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-        addCipokAr(cipoId);
-      });
-    }
-    const editCipokArForm = document.getElementById("editCipokArForm");
-    if (editCipokArForm) {
-      editCipokArForm.addEventListener("submit", updateCipokAr);
-    }
+    const container = document.getElementById("meretekContainer");
+    container.innerHTML = html;
+    container.style.display = "block";
+    document.getElementById("addCipokArForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      addCipokAr(cipoId);
+    });
+    document.getElementById("editCipokArForm").addEventListener("submit", updateCipokAr);
   }
 
   async function addCipokAr(cipoId) {
@@ -786,11 +718,8 @@ document.addEventListener("DOMContentLoaded", function() {
         body: JSON.stringify({ datum, ar })
       });
       const data = await res.json();
-      if (data.success) {
-        showCipokArvaltozas(cipoId);
-      } else {
-        alert("Hiba az ár hozzáadásakor");
-      }
+      if (data.success) showCipokArvaltozas(cipoId);
+      else alert("Hiba az ár hozzáadásakor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt az ár hozzáadásakor");
@@ -808,7 +737,7 @@ document.addEventListener("DOMContentLoaded", function() {
       document.getElementById("editCipokArId").value = record.arvaltozas_id;
       document.getElementById("editCipokArInput").value = record.ar;
       let d = new Date(record.datum);
-      const pad = (n) => n.toString().padStart(2, '0');
+      const pad = n => n.toString().padStart(2, "0");
       const formatted = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
       document.getElementById("editCipokDatumInput").value = formatted;
       document.getElementById("editCipokArContainer").style.display = "block";
@@ -834,9 +763,7 @@ document.addEventListener("DOMContentLoaded", function() {
       if (data.success) {
         document.getElementById("editCipokArContainer").style.display = "none";
         showCipokArvaltozas(window.currentCipoId);
-      } else {
-        alert("Hiba az ár frissítésekor");
-      }
+      } else alert("Hiba az ár frissítésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt az ár frissítésekor");
@@ -848,11 +775,8 @@ document.addEventListener("DOMContentLoaded", function() {
     try {
       const res = await fetch(`/api/arvaltozas/${arId}`, { method: "DELETE" });
       const data = await res.json();
-      if (data.success) {
-        showCipokArvaltozas(cipoId);
-      } else {
-        alert("Hiba az ár bejegyzés törlésekor");
-      }
+      if (data.success) showCipokArvaltozas(cipoId);
+      else alert("Hiba az ár bejegyzés törlésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt az ár bejegyzés törlésekor");
@@ -865,14 +789,16 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function closeCipokArvaltozas() {
-    const meretekContainer = document.getElementById("meretekContainer");
-    if (meretekContainer) meretekContainer.style.display = "none";
+    const container = document.getElementById("meretekContainer");
+    if (container) container.style.display = "none";
   }
 
-  // ----- EXKLUZÍV CIPŐK: MÉRETEK KEZELÉSE -----
+  /* =========================
+     EXKLUZÍV CIPŐK KEZELÉSE
+  ========================= */
   async function loadExkluziv() {
     try {
-      const res = await fetch(`/api/exkluziv_cipok`);
+      const res = await fetch("/api/exkluziv_cipok");
       const exkluziv = await res.json();
       renderExkluziv(exkluziv);
     } catch (err) {
@@ -943,24 +869,14 @@ document.addEventListener("DOMContentLoaded", function() {
         </form>
       </div>
       <div id="exArContainer" style="display:none;"></div>
-      <!-- Közös container a exkluzív méreteknek -->
       <div id="meretekContainer" style="display:none;"></div>
     `;
     tabContent.innerHTML = html;
-    const addExkluzivBtn = document.getElementById("addExkluzivBtn");
-    if (addExkluzivBtn) {
-      addExkluzivBtn.addEventListener("click", () => {
-        document.getElementById("addExkluzivContainer").style.display = "block";
-      });
-    }
-    const addExkluzivForm = document.getElementById("addExkluzivForm");
-    if (addExkluzivForm) {
-      addExkluzivForm.addEventListener("submit", addExkluziv);
-    }
-    const editExkluzivForm = document.getElementById("editExkluzivForm");
-    if (editExkluzivForm) {
-      editExkluzivForm.addEventListener("submit", updateExkluziv);
-    }
+    document.getElementById("addExkluzivBtn").addEventListener("click", () => {
+      document.getElementById("addExkluzivContainer").style.display = "block";
+    });
+    document.getElementById("addExkluzivForm").addEventListener("submit", addExkluziv);
+    document.getElementById("editExkluzivForm").addEventListener("submit", updateExkluziv);
   }
 
   async function addExkluziv(e) {
@@ -972,17 +888,14 @@ document.addEventListener("DOMContentLoaded", function() {
       leiras: document.getElementById("newExLeiras").value
     };
     try {
-      const res = await fetch(`/api/exkluziv_cipok`, {
+      const res = await fetch("/api/exkluziv_cipok", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newData)
       });
       const data = await res.json();
-      if (data.success) {
-        loadExkluziv();
-      } else {
-        alert("Hiba az exkluzív cipő hozzáadásakor");
-      }
+      if (data.success) loadExkluziv();
+      else alert("Hiba az exkluzív cipő hozzáadásakor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt az exkluzív cipő hozzáadásakor");
@@ -1024,9 +937,7 @@ document.addEventListener("DOMContentLoaded", function() {
       if (data.success) {
         document.getElementById("editExkluzivContainer").style.display = "none";
         loadExkluziv();
-      } else {
-        alert("Hiba az exkluzív cipő frissítésekor");
-      }
+      } else alert("Hiba az exkluzív cipő frissítésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt az exkluzív cipő frissítésekor");
@@ -1042,16 +953,24 @@ document.addEventListener("DOMContentLoaded", function() {
         const row = document.getElementById(`exkluziv-${exId}`);
         if (row) row.remove();
         else loadExkluziv();
-      } else {
-        alert("Hiba az exkluzív cipő törlésekor");
-      }
+      } else alert("Hiba az exkluzív cipő törlésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt az exkluzív cipő törlésekor");
     }
   }
 
-  // ----- EXKLUZÍV CIPŐK: MÉRETEK KEZELÉSE -----
+  // Extra exkluzív függvények
+  function cancelAddExkluziv() {
+    const addContainer = document.getElementById("addExkluzivContainer");
+    if (addContainer) addContainer.style.display = "none";
+  }
+  function cancelEditExkluziv() {
+    const editContainer = document.getElementById("editExkluzivContainer");
+    if (editContainer) editContainer.style.display = "none";
+  }
+
+  // ----- EXKLUZÍV CIPŐK MÉRETEI -----
   async function showExkluzivMeretek(exId) {
     window.currentExId = exId;
     try {
@@ -1119,17 +1038,11 @@ document.addEventListener("DOMContentLoaded", function() {
     `;
     container.innerHTML = html;
     container.style.display = "block";
-    const addExMeretForm = document.getElementById("addExMeretForm");
-    if (addExMeretForm) {
-      addExMeretForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-        addExMeretForEx(exId);
-      });
-    }
-    const editExMeretForm = document.getElementById("editExMeretForm");
-    if (editExMeretForm) {
-      editExMeretForm.addEventListener("submit", updateExMeret);
-    }
+    document.getElementById("addExMeretForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      addExMeretForEx(exId);
+    });
+    document.getElementById("editExMeretForm").addEventListener("submit", updateExMeret);
   }
 
   async function addExMeretForEx(exId) {
@@ -1142,11 +1055,8 @@ document.addEventListener("DOMContentLoaded", function() {
         body: JSON.stringify({ meret, keszlet })
       });
       const data = await res.json();
-      if (data.success) {
-        showExkluzivMeretek(exId);
-      } else {
-        alert("Hiba a méret hozzáadásakor");
-      }
+      if (data.success) showExkluzivMeretek(exId);
+      else alert("Hiba a méret hozzáadásakor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt a méret hozzáadásakor");
@@ -1186,9 +1096,7 @@ document.addEventListener("DOMContentLoaded", function() {
       if (data.success) {
         document.getElementById("editExMeretContainer").style.display = "none";
         showExkluzivMeretek(window.currentExId);
-      } else {
-        alert("Hiba a méret frissítésekor");
-      }
+      } else alert("Hiba a méret frissítésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt a méret frissítésekor");
@@ -1198,13 +1106,10 @@ document.addEventListener("DOMContentLoaded", function() {
   async function deleteExMeret(meretId, exId) {
     if (!confirm("Biztosan törlöd ezt a méretet?")) return;
     try {
-      const res = await fetch(`/api/exkluziv_cipok/meretek/${meretId}?exkluziv_id=${exId}`, { method: "DELETE" });
+      const res = await fetch(`/api/exkluziv_cipok/meretek/${meretId}`, { method: "DELETE" });
       const data = await res.json();
-      if (data.success) {
-        showExkluzivMeretek(exId);
-      } else {
-        alert("Hiba a méret törlésekor");
-      }
+      if (data.success) showExkluzivMeretek(exId);
+      else alert("Hiba a méret törlésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt a méret törlésekor");
@@ -1236,7 +1141,6 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   function renderExkluzivArvaltozas(arvaltozas, exId) {
-    const container = document.getElementById("exArContainer");
     let html = `
       <h3>Ártörténet (Exkluzív cipő ID: ${exId})</h3>
       <table class="table table-striped">
@@ -1292,19 +1196,14 @@ document.addEventListener("DOMContentLoaded", function() {
       </div>
       <button class="btn btn-light mt-3" onclick="closeExAr()">Vissza</button>
     `;
+    const container = document.getElementById("exArContainer");
     container.innerHTML = html;
     container.style.display = "block";
-    const addExArForm = document.getElementById("addExArForm");
-    if (addExArForm) {
-      addExArForm.addEventListener("submit", function(e) {
-        e.preventDefault();
-        addExAr(window.currentExId);
-      });
-    }
-    const editExArForm = document.getElementById("editExArForm");
-    if (editExArForm) {
-      editExArForm.addEventListener("submit", updateExAr);
-    }
+    document.getElementById("addExArForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      addExAr(window.currentExId);
+    });
+    document.getElementById("editExArForm").addEventListener("submit", updateExAr);
   }
 
   async function addExAr(exId) {
@@ -1318,11 +1217,8 @@ document.addEventListener("DOMContentLoaded", function() {
         body: JSON.stringify({ datum, ar })
       });
       const data = await res.json();
-      if (data.success) {
-        showExkluzivArvaltozas(exId);
-      } else {
-        alert("Hiba az új ár hozzáadásakor");
-      }
+      if (data.success) showExkluzivArvaltozas(exId);
+      else alert("Hiba az új ár hozzáadásakor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt az új ár hozzáadásakor");
@@ -1340,7 +1236,7 @@ document.addEventListener("DOMContentLoaded", function() {
       document.getElementById("editExArId").value = record.arvaltozas_id;
       document.getElementById("editExArInput").value = record.ar;
       let d = new Date(record.datum);
-      const pad = (n) => n.toString().padStart(2, '0');
+      const pad = n => n.toString().padStart(2, "0");
       const formatted = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
       document.getElementById("editExDatumInput").value = formatted;
       document.getElementById("editExArContainer").style.display = "block";
@@ -1366,9 +1262,7 @@ document.addEventListener("DOMContentLoaded", function() {
       if (data.success) {
         document.getElementById("editExArContainer").style.display = "none";
         showExkluzivArvaltozas(window.currentExId);
-      } else {
-        alert("Hiba az ár frissítésekor");
-      }
+      } else alert("Hiba az ár frissítésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt az ár frissítésekor");
@@ -1380,44 +1274,38 @@ document.addEventListener("DOMContentLoaded", function() {
     try {
       const res = await fetch(`/api/arvaltozas/${arId}`, { method: "DELETE" });
       const data = await res.json();
-      if (data.success) {
-        showExkluzivArvaltozas(exId);
-      } else {
-        alert("Hiba az ár bejegyzés törlésekor");
-      }
+      if (data.success) showExkluzivArvaltozas(exId);
+      else alert("Hiba az ár bejegyzés törlésekor");
     } catch (err) {
       console.error(err);
       alert("Hiba történt az ár bejegyzés törlésekor");
     }
   }
 
-  function cancelEditExAr() {
-    const editContainer = document.getElementById("editExArContainer");
+  function cancelEditCipokAr() {
+    const editContainer = document.getElementById("editCipokArContainer");
     if (editContainer) editContainer.style.display = "none";
   }
 
-  function closeExAr() {
-    const container = document.getElementById("exArContainer");
+  function closeCipokArvaltozas() {
+    const container = document.getElementById("meretekContainer");
     if (container) container.style.display = "none";
-    loadExkluziv();
   }
 
-  // ============================================================
-  // Bal oldali panel kezelése
-  // ============================================================
+  /* =========================================
+     GOMBOK A BAL OLDALI PANELEN
+  ========================================= */
   const openLeftPanelBtn = document.getElementById("openLeftPanel");
   const leftPanel = document.getElementById("leftPanel");
   const closeLeftPanelBtn = document.getElementById("closeLeftPanel");
   if (openLeftPanelBtn && leftPanel && closeLeftPanelBtn) {
-    openLeftPanelBtn.addEventListener("click", () => {
-      leftPanel.classList.add("active");
-    });
-    closeLeftPanelBtn.addEventListener("click", () => {
-      leftPanel.classList.remove("active");
-    });
+    openLeftPanelBtn.addEventListener("click", () => leftPanel.classList.add("active"));
+    closeLeftPanelBtn.addEventListener("click", () => leftPanel.classList.remove("active"));
   }
 
-  // Globális függvények exportálása, hogy inline onclick-ok elérjék őket
+  /* =========================================
+     GLOBÁLIS EXPORTOK
+  ========================================= */
   window.editUser = editUser;
   window.deleteUser = deleteUser;
   window.editCipo = editCipo;
@@ -1443,4 +1331,14 @@ document.addEventListener("DOMContentLoaded", function() {
   window.deleteNormMeret = deleteNormMeret;
   window.cancelEditNormMeret = cancelEditNormMeret;
   window.deleteCipokAr = deleteCipokAr;
+
+  // Hiányzó függvények exportálása
+  function cancelAddExkluziv() {
+    const addContainer = document.getElementById("addExkluzivContainer");
+    if (addContainer) addContainer.style.display = "none";
+  }
+  function cancelEditExkluziv() {
+    const editContainer = document.getElementById("editExkluzivContainer");
+    if (editContainer) editContainer.style.display = "none";
+  }
 });

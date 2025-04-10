@@ -28,7 +28,7 @@ db.connect(err => {
   console.log("✅ Connected to MySQL Database");
 });
 
-// STATIKUS KÉPEK KISZOLGÁLÁSA
+// STATIKUS KÉPEK KISZOLGÁLÁSA (csak képek, nem az egész frontend!)
 app.use("/cipok", express.static(path.join(__dirname, "../kicksify_frontend/cipok")));
 app.use("/images", express.static(path.join(__dirname, "images")));
 
@@ -61,7 +61,7 @@ app.post("/api/felhasznalok/login", (req, res) => {
   });
 });
 
-// Regisztráció (felhasználó létrehozása)
+// Regisztráció
 app.post("/api/felhasznalok", (req, res) => {
   const { vezeteknev, keresztnev, felhasznalonev, email, jelszo_hash, szerep } = req.body;
   if (!vezeteknev || !keresztnev || !felhasznalonev || !email || !jelszo_hash) {
@@ -485,7 +485,8 @@ app.delete("/api/meretek/:id", (req, res) => {
 ========================= */
 app.get("/api/exkluziv_cipok/:exId/meretek", (req, res) => {
   const exId = req.params.exId;
-  const query = "SELECT * FROM exkluziv_cipo_meretek WHERE exkluziv_id = ?";
+  // Alias: az "ex_meret" oszlopot "meret" néven adjuk vissza.
+  const query = "SELECT meret_id, ex_meret AS meret, keszlet FROM exkluziv_cipo_meretek WHERE exkluziv_id = ?";
   db.query(query, [exId], (err, results) => {
     if (err) {
       console.error("❌ Exkluzív méretek lekérdezési hiba:", err);
@@ -589,7 +590,6 @@ app.post("/api/exkluziv_cipok/:exId/arvaltozas", (req, res) => {
     res.json({ success: true, insertId: result.insertId });
   });
 });
-
 
 /* =========================
    ÁRTÖRTÉNET általános végpontok (GET, PUT, DELETE)
