@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", async function () {
-  // -------------------------------
   // 1) Termékadatok betöltése
-  // -------------------------------
   const urlParams = new URLSearchParams(window.location.search);
   const cipoId = urlParams.get("id");
   if (!cipoId) {
@@ -15,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async function () {
       console.error("Hiba:", dataCipo.error);
       return;
     }
-    // Képgaléria beállítása
+    // Képgaléria
     const mainImage = document.getElementById("main-image");
     const gallery = document.getElementById("image-gallery");
     mainImage.src = "no-image.png";
@@ -27,9 +25,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         const imgElem = document.createElement("img");
         imgElem.src = `/cipok/${img.trim()}`;
         imgElem.className = "small";
-        imgElem.addEventListener("click", () => {
-          mainImage.src = imgElem.src;
-        });
+        imgElem.addEventListener("click", () => { mainImage.src = imgElem.src; });
         gallery.appendChild(imgElem);
       });
     }
@@ -38,12 +34,9 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("product-name").textContent = dataCipo.modell;
     document.getElementById("product-price").textContent =
       Number(dataCipo.ar).toLocaleString("hu-HU") + " Ft";
-    // A leírást az accordion belsejébe tesszük:
     document.getElementById("product-description").textContent = dataCipo.leiras || "";
     
-    // -------------------------------
     // 2) Méretek betöltése
-    // -------------------------------
     const resSizes = await fetch(`/api/cipok/${cipoId}/meretek`);
     const sizesData = await resSizes.json();
     const sizeContainer = document.getElementById("size-options");
@@ -60,17 +53,13 @@ document.addEventListener("DOMContentLoaded", async function () {
       sizeContainer.appendChild(sizeBtn);
     });
     
-    // -------------------------------
     // 3) Ár történelem betöltése
-    // -------------------------------
     loadPriceHistory(cipoId);
   } catch (err) {
     console.error("Hiba a termékadatok betöltésekor:", err);
   }
   
-  // -------------------------------
-  // 4) Kosárba rakás esemény
-  // -------------------------------
+  // 4) Kosárba rakás
   document.getElementById("addToCartBtn").addEventListener("click", function() {
     const productName = document.getElementById("product-name").textContent;
     const selectedSize = document.getElementById("selected-size").textContent;
@@ -79,26 +68,17 @@ document.addEventListener("DOMContentLoaded", async function () {
     const price = parseInt(priceText.replace(/\D/g, ""), 10);
     const imageUrl = document.getElementById("main-image").src;
     
-    // Itt a termék id a normál cipo_id, típus "product"
     addToCart(cipoId, productName, selectedSize, quantity, price, imageUrl, "product");
   });
   
-  // -------------------------------
   // 5) Bal oldali panel kezelése
-  // -------------------------------
   const openLeftPanelBtn = document.getElementById("openLeftPanel");
   const leftPanel = document.getElementById("leftPanel");
   const closeLeftPanelBtn = document.getElementById("closeLeftPanel");
-  openLeftPanelBtn.addEventListener("click", () => {
-    leftPanel.classList.add("active");
-  });
-  closeLeftPanelBtn.addEventListener("click", () => {
-    leftPanel.classList.remove("active");
-  });
+  openLeftPanelBtn.addEventListener("click", () => { leftPanel.classList.add("active"); });
+  closeLeftPanelBtn.addEventListener("click", () => { leftPanel.classList.remove("active"); });
   
-  // -------------------------------
   // 6) Keresőpanel kezelése
-  // -------------------------------
   const openSearchBtn = document.getElementById("openSearch");
   const sideSearch = document.getElementById("sideSearch");
   const closeSideSearch = document.getElementById("closeSideSearch");
@@ -116,7 +96,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     searchOverlay.classList.remove("active");
   });
   
-  // <-- Új keresési funkció: keyup esemény a kereső inputon -->
+  // Új: Keresési funkció (keyup esemény)
   const searchInput = document.getElementById("sideSearchInput");
   const searchResults = document.getElementById("sideSearchResults");
   searchInput.addEventListener("keyup", async () => {
@@ -165,17 +145,17 @@ document.addEventListener("DOMContentLoaded", async function () {
     }
   });
   
-  // -------------------------------
   // 7) Kosár modal kezelése
-  // -------------------------------
   const openCartBtn = document.getElementById("openCart");
   const cartModal = document.getElementById("cartModal");
   const cartCloseBtn = document.querySelector(".cart-close-btn");
   const clearCartBtn = document.getElementById("clear-cart");
+  const paymentBtn = document.getElementById("paymentBtn");
   
   openCartBtn.addEventListener("click", () => {
     cartModal.classList.add("active");
     displayCart();
+    checkCartForPayment();
   });
   cartCloseBtn.addEventListener("click", () => {
     cartModal.classList.remove("active");
@@ -184,11 +164,33 @@ document.addEventListener("DOMContentLoaded", async function () {
     localStorage.removeItem("cart");
     displayCart();
     alert("A kosár kiürült.");
+    checkCartForPayment();
   });
   
-  // -------------------------------
+  // Fizetés gomb kezelése:
+  paymentBtn.addEventListener("click", function() {
+    // Ha nincs bejelentkezve, jelenjen meg a bejelentkezési modal!
+    if (!localStorage.getItem("loggedInUser")) {
+      document.getElementById("loginSection").style.display = "block";
+      document.getElementById("registerSection").style.display = "none";
+      document.getElementById("profileSection").style.display = "none";
+      document.getElementById("editProfileSection").style.display = "none";
+      document.getElementById("authModalLabel").textContent = "Bejelentkezés";
+      authModal.show();
+      return;
+    }
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    if (cart.length === 0) {
+      alert("A kosár üres!");
+      return;
+    }
+    // Fizetés: töröljük a kosár tartalmát és megjelenítjük a fizetési modal-t
+    localStorage.removeItem("cart");
+    displayCart();
+    document.getElementById("paymentModal").style.display = "block";
+  });
+  
   // 8) Bejelentkezés, regisztráció, profil kezelése
-  // -------------------------------
   const openAuthModalBtn = document.getElementById("openAuthModal");
   const authModalEl = document.getElementById("authModal");
   const authModal = new bootstrap.Modal(authModalEl);
@@ -213,6 +215,24 @@ document.addEventListener("DOMContentLoaded", async function () {
     authModal.show();
   });
   
+  // Modal linkek a regisztráció / bejelentkezés váltásához
+  const showRegisterLink = document.getElementById("showRegister");
+  const showLoginLink = document.getElementById("showLogin");
+  if (showRegisterLink) {
+    showRegisterLink.addEventListener("click", function() {
+      document.getElementById("loginSection").style.display = "none";
+      document.getElementById("registerSection").style.display = "block";
+      document.getElementById("authModalLabel").textContent = "Regisztráció";
+    });
+  }
+  if (showLoginLink) {
+    showLoginLink.addEventListener("click", function() {
+      document.getElementById("registerSection").style.display = "none";
+      document.getElementById("loginSection").style.display = "block";
+      document.getElementById("authModalLabel").textContent = "Bejelentkezés";
+    });
+  }
+  
   // Login form
   const loginForm = document.getElementById("loginForm");
   loginForm.addEventListener("submit", function(e) {
@@ -230,6 +250,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         localStorage.setItem("loggedInUser", JSON.stringify(data.user));
         authModal.hide();
         alert("Sikeres bejelentkezés!");
+        checkCartForPayment();
       } else {
         alert("Hibás email vagy jelszó!");
       }
@@ -271,7 +292,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   });
   
-  // Profile edit: megjelenítés
+  // Profil szerkesztés
   const editProfileButton = document.getElementById("editProfileButton");
   if (editProfileButton) {
     editProfileButton.addEventListener("click", () => {
@@ -332,12 +353,16 @@ document.addEventListener("DOMContentLoaded", async function () {
     document.getElementById("authModalLabel").textContent = "Bejelentkezés";
     const authModalInstance = bootstrap.Modal.getInstance(authModalEl);
     authModalInstance.hide();
+    checkCartForPayment();
+  });
+  
+  // 9) Fizetési modal bezárása
+  document.getElementById("closePaymentModal").addEventListener("click", function() {
+    document.getElementById("paymentModal").style.display = "none";
   });
 });
 
-// -------------------------------
 // Függvények
-// -------------------------------
 
 // Mennyiség frissítése
 function updateQuantity(change) {
@@ -364,27 +389,8 @@ async function loadPriceHistory(cipoId) {
     const ctx = document.getElementById("priceChart").getContext("2d");
     new Chart(ctx, {
       type: "line",
-      data: {
-        labels: labels,
-        datasets: [{
-          label: "Árváltozás",
-          data: prices,
-          borderColor: "#000",
-          backgroundColor: "rgba(0,0,0,0.1)",
-          fill: true
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: false,
-            min: minPrice,
-            max: maxPrice
-          }
-        }
-      }
+      data: { labels: labels, datasets: [{ label: "Árváltozás", data: prices, borderColor: "#000", backgroundColor: "rgba(0,0,0,0.1)", fill: true }] },
+      options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: false, min: minPrice, max: maxPrice } } }
     });
     
     // Ár történelem táblázat
@@ -421,7 +427,7 @@ async function loadPriceHistory(cipoId) {
   }
 }
 
-// Kosárba rakás: adatok a localStorage-ban
+// Kosárba rakás
 function addToCart(id, name, size, qty, price, imgUrl, type) {
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
   const existing = cart.find(item => item.id === id && item.size === size && item.type === type);
@@ -449,4 +455,11 @@ function displayCart() {
     div.innerHTML = `<strong>${item.name}</strong> - Méret: ${item.size} - Mennyiség: ${item.qty}`;
     cartItemsContainer.appendChild(div);
   });
+}
+
+// A fizetés gomb engedélyezése a kosár tartalma alapján (üres -> tiltva)
+function checkCartForPayment() {
+  const paymentBtn = document.getElementById("paymentBtn");
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  paymentBtn.disabled = (cart.length === 0);
 }
