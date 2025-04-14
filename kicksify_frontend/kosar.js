@@ -70,33 +70,53 @@ function kosarBetoltese() {
     const addToCartBtn = document.getElementById("addToCartBtn");
     if (addToCartBtn) {
       addToCartBtn.addEventListener("click", function () {
-        // Feltételezzük, hogy az oldalon valahol elérhetőek a következők:
-        const cipoId = document.getElementById("cipoId").value; 
-        const marka = document.getElementById("product-brand").textContent;
-        const modell = document.getElementById("product-name").textContent;
-        const meret = document.getElementById("selected-size").textContent;
-        const darabszam = parseInt(document.getElementById("quantity").value, 10) || 1;
-  
+        // Próbáljuk meg először a "cipoId" elemet, ha nem találjuk, akkor "exkluzivId"-t
+        let productIdElem = document.getElementById("cipoId");
+        if (!productIdElem) {
+          productIdElem = document.getElementById("exkluzivId");
+        }
+        if (!productIdElem) {
+          console.error("A termék azonosító elem (cipoId vagy exkluzivId) nem található!");
+          return;
+        }
+        const productId = productIdElem.value || productIdElem.textContent;
+        
+        const markaElem = document.getElementById("product-brand");
+        const modellElem = document.getElementById("product-name");
+        const sizeElem = document.getElementById("selected-size");
+        const quantityElem = document.getElementById("quantity");
+        const priceElem = document.getElementById("product-price");
+        const mainImageElem = document.getElementById("main-image");
+    
+        if (!markaElem || !modellElem || !sizeElem || !quantityElem || !priceElem || !mainImageElem) {
+          console.error("Egy vagy több termék adat elem nem található!");
+          return;
+        }
+    
+        const marka = markaElem.textContent;
+        const modell = modellElem.textContent;
+        const meret = sizeElem.textContent;
+        const darabszam = parseInt(quantityElem.value, 10) || 1;
+    
         // Ár kinyerése pl. "54 990 Ft" -> 54990
-        const arSzoveg = document.getElementById("product-price").textContent;
+        const arSzoveg = priceElem.textContent;
         const ar = parseInt(arSzoveg.replace(/\D/g, ""), 10);
-  
-        // Opcionálisan a fő kép (ha kell a kosárban)
-        const kepUrl = document.getElementById("main-image").src;
-  
+    
+        const kepUrl = mainImageElem.src;
+    
         const ujTermek = {
-          cipo_id: parseInt(cipoId, 10),
+          cipo_id: parseInt(productId, 10),
           marka,
           modell,
-          meret: parseInt(meret, 10), // ha float, akkor parseFloat
+          meret: parseInt(meret, 10),
           darabszam,
           ar,
           kep: kepUrl
         };
-  
+    
         kosarhozHozzaad(ujTermek);
         alert("Termék hozzáadva a kosárhoz!");
-        kosarMegjelenitese(); 
+        kosarMegjelenitese();
       });
     }
   });

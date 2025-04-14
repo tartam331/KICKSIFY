@@ -495,7 +495,8 @@ app.delete("/api/exkluziv_cipok/:id", (req, res) => {
 // EXKLUZÍV CIPŐK MÉRETEI
 app.get("/api/exkluziv_cipok/:exId/meretek", (req, res) => {
   const exId = req.params.exId;
-  const query = "SELECT exkluziv_id, meret_id AS meret, keszlet FROM exkluziv_cipo_meretek WHERE exkluziv_id = ?";
+  // A táblában nincs "ex_meret" oszlop, ezért a "meret_id"-t használjuk alias "meret"-ként.
+  const query = "SELECT meret_id, meret_id AS meret, keszlet FROM exkluziv_cipo_meretek WHERE exkluziv_id = ?";
   db.query(query, [exId], (err, results) => {
     if (err) {
       console.error("❌ Exkluzív méretek lekérdezési hiba:", err);
@@ -505,12 +506,14 @@ app.get("/api/exkluziv_cipok/:exId/meretek", (req, res) => {
   });
 });
 
+// POST: Új exkluzív cipő méret hozzáadása
 app.post("/api/exkluziv_cipok/:exId/meretek", (req, res) => {
   const exId = req.params.exId;
   const { meret, keszlet } = req.body;
   if (!meret || (keszlet === undefined)) {
     return res.status(400).json({ error: "Hiányzó adatok" });
   }
+  // Javítottam: az "ex_meret" helyett a "meret_id" oszlopot használjuk
   const query = "INSERT INTO exkluziv_cipo_meretek (exkluziv_id, meret_id, keszlet) VALUES (?, ?, ?)";
   db.query(query, [exId, meret, keszlet], (err, result) => {
     if (err) {
@@ -521,10 +524,28 @@ app.post("/api/exkluziv_cipok/:exId/meretek", (req, res) => {
   });
 });
 
-// Itt alkalmazzuk a normál cipők törlési logikáját az exkluzív cipők méreteire
-app.delete("/api/exkluziv_meretek/:id", (req, res) => {
-  const meretId = req.params.id;
-  db.query("DELETE FROM exkluziv_cipo_meretek WHERE meret_id = ?", [meretId], (err) => {
+app.put("/api/exkluziv_cipok/meretek/:meretId", (req, res) => {
+  const meretId = req.params.meretId;
+  const { meret, keszlet } = req.body;
+  if (!meret || (keszlet === undefined)) {
+    return res.status(400).json({ error: "Hiányzó adatok" });
+  }
+  const query = "UPDATE exkluziv_cipo_meretek SET ex_meret = ?, keszlet = ? WHERE meret_id = ?";
+  // Ha szükséges, itt is javítható: ha a táblában csak a "meret_id" található, akkor az update változtatására
+  // hasonló megoldás alkalmazandó, de általában a POST végpontot kell javítani.
+  db.query("UPDATE exkluziv_cipo_meretek SET meret_id = ?, keszlet = ? WHERE meret_id = ?", [meret, keszlet, meretId], (err) => {
+    if (err) {
+      console.error("❌ Exkluzív méret update hiba:", err);
+      return res.status(500).json({ error: "Hiba az exkluzív méret frissítésekor" });
+    }
+    res.json({ success: true });
+  });
+});
+
+app.delete("/api/exkluziv_cipok/meretek/:meretId", (req, res) => {
+  const meretId = req.params.meretId;
+  const query = "DELETE FROM exkluziv_cipo_meretek WHERE meret_id = ?";
+  db.query(query, [meretId], (err, result) => {
     if (err) {
       console.error("❌ Exkluzív méret törlés hiba:", err);
       return res.status(500).json({ error: "Hiba az exkluzív méret törlésekor" });
